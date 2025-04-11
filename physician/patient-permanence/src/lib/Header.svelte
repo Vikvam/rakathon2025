@@ -6,8 +6,9 @@
     <nav>
         <ul>
             <li><a href="/">Home</a></li>
+            <li><a href="/forms">Forms</a></li>
+            <li><a href="/form-definition">New Form Definition</a></li>
             <li><a href="/form-assignment">Form Assignment</a></li>
-            <li><a href="/form-definition">Form Definition</a></li>
         </ul>
     </nav>
 </header>
@@ -17,6 +18,7 @@
         background-color: #333;
         padding: 10px 20px;
         color: white;
+        margin-bottom: 20px; /* Add some space below the header */
     }
 
     nav ul {

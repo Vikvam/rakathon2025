@@ -318,7 +318,7 @@
     magic-string "^0.30.15"
     vitefu "^1.0.4"
 
-"@tauri-apps/api@^2", "@tauri-apps/api@^2.0.0":
+"@tauri-apps/api@^2.0.0":
   version "2.4.1"
   resolved "https://registry.yarnpkg.com/@tauri-apps/api/-/api-2.4.1.tgz#33b681a6fdb83f73fd8cb03bf94e71a5603ede1c"
   integrity sha512-5sYwZCSJb6PBGbBL4kt7CnE5HHbBqwH+ovmOW6ZVju3nX4E3JX6tt2kRklFEH7xMOIwR0btRkZktuLhKvyEQYg==
@@ -394,6 +394,13 @@
     "@tauri-apps/cli-win32-arm64-msvc" "2.4.1"
     "@tauri-apps/cli-win32-ia32-msvc" "2.4.1"
     "@tauri-apps/cli-win32-x64-msvc" "2.4.1"
+
+"@tauri-apps/plugin-fs@~2":
+  version "2.2.1"
+  resolved "https://registry.yarnpkg.com/@tauri-apps/plugin-fs/-/plugin-fs-2.2.1.tgz#ffc36787948ca1c89f27239a613b229703bf0a80"
+  integrity sha512-KdGzvvA4Eg0Dhw55MwczFbjxLxsTx0FvwwC/0StXlr6IxwPUxh5ziZQoaugkBFs8t+wfebdQrjBEzd8NmmDXNw==
+  dependencies:
+    "@tauri-apps/api" "^2.0.0"
 
 "@tauri-apps/plugin-opener@^2":
   version "2.2.6"

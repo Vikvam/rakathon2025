@@ -47,15 +47,10 @@
         const success = await saveForm(data.formId, formattedJson);
         if (success) {
             successMessage = "Form definition updated successfully!";
-            // Consider invalidation here if needed to refresh related data elsewhere
-            // invalidate(...)
-            // Update the `data` prop value *if absolutely necessary* to prevent
-            // the $effect from immediately overwriting the success state/editor content.
-            // However, relying on user navigation or explicit refresh is often cleaner.
-            // data.formJson = formattedJson; // This is still tricky with props.
+            await goto("/forms", { replaceState: true });
+            isProcessing = false;
         } else {
-            errorMessage =
-                "Failed to update the form definition. Check console.";
+            errorMessage = "Failed to update the form definition.";
         }
         isProcessing = false;
     }

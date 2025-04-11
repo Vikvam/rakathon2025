@@ -5,8 +5,8 @@ import {
   remove,
   mkdir,
   exists,
-  BaseDirectory, // Import BaseDirectory enum
-} from "@tauri-apps/plugin-fs"; // Import from the fs plugin
+  BaseDirectory,
+} from "@tauri-apps/plugin-fs";
 
 const FORM_SUBDIR = "form_definitions";
 let isInitialized = false;

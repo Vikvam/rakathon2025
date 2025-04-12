@@ -262,7 +262,7 @@ export function generateFormIdFromName(name) {
   if (!name) return `form-${Date.now()}`;
   return name
     .toLowerCase()
-    .replace(/\s+/g, "-") // Replace spaces with hyphens
+    .replace(/\s+/g, "_") // Replace spaces with hyphens
     .replace(/[^a-z0-9-]/g, "") // Remove invalid characters
     .replace(/-+/g, "-") // Replace multiple hyphens with single
     .replace(/^-+|-+$/g, ""); // Trim leading/trailing hyphens

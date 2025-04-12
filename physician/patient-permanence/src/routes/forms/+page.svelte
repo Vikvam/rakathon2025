@@ -49,6 +49,7 @@
                     {form.name} ({form.id})
                 </a>
                 <a href="/form-edit/{form.id}"> Edit </a>
+                <a href="/form-summary/{form.id}"> Summarize </a>
             </li>
         {/each}
     </ul>

@@ -25,7 +25,7 @@
     ],
     "questions": [
       {
-        "key": "cardio_chest_pain",
+        "key": "kardio_bolest_hrudniku",
         "text": "Zaznamenal(a) jste bolest na hrudi?",
         "dataType": "single_choice",
         "options": [
@@ -41,7 +41,7 @@
         }
       },
       {
-        "key": "cardio_leg_swelling",
+        "key": "kardio_otoky_dolnich_koncetin",
         "text": "Zaznamenal(a) jste otoky nohou?",
         "dataType": "single_choice",
         "options": [

@@ -121,7 +121,7 @@
                 inputmode="numeric"
                 bind:value={code}
                 on:input={handleInput}
-                placeholder="123456"
+                placeholder="- - - - - -"
                 maxlength="6"
                 disabled={status === "submitting" || status === "success"}
                 class="block w-full rounded-md border border-gray-300 px-3 py-3 text-center text-2xl font-mono tracking-[0.5em] shadow-sm placeholder:tracking-normal placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:cursor-not-allowed disabled:bg-gray-100 sm:text-3xl"

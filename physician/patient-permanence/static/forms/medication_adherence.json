@@ -25,7 +25,7 @@
     ],
     "questions": [
       {
-        "key": "adherence_taken_yesterday",
+        "key": "uziti_leku_vcera",
         "text": "Vzal/a jste si včera všechny předepsané léky podle plánu?",
         "dataType": "single_choice",
         "options": [
@@ -43,7 +43,7 @@
         }
       },
       {
-        "key": "adherence_reason_missed",
+        "key": "duvod_vynechani_leku",
         "text": "Pokud jste včera vynechal/a nějaké léky, jaký byl hlavní důvod? (Pokud jste žádné nevynechal/a, zvolte poslední možnost)",
         "dataType": "single_choice",
         "options": [

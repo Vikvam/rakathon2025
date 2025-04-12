@@ -25,7 +25,7 @@
     ],
     "questions": [
       {
-        "key": "fatigue_more_than_usual",
+        "key": "unava_vetsi_nez_obvykle",
         "text": "Cítíte se výrazně unavenější než obvykle?",
         "dataType": "single_choice",
         "options": [
@@ -41,7 +41,7 @@
         }
       },
       {
-        "key": "fatigue_sleep_issues_somnolence",
+        "key": "unava_ospavost",
         "text": "Máte potíže se spánkem nebo nadměrnou ospalost?",
         "dataType": "single_choice",
         "options": [

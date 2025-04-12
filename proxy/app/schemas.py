@@ -14,12 +14,12 @@ class MessageType(str, Enum):
 
 class DoctorSessionInit(BaseModel):
     message_type: Literal[MessageType.DOCTOR_SESSION_INIT] = MessageType.DOCTOR_SESSION_INIT
-    code: str
+    code: int
 
 
 class PatientSessionQuery(BaseModel):
     message_type: Literal[MessageType.PATIENT_SESSION_QUERY] = MessageType.PATIENT_SESSION_QUERY
-    code: str
+    code: int
 
 
 class DoctorSessionPatientConnected(BaseModel):

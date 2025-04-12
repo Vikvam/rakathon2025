@@ -40,8 +40,8 @@
                         <br>
                         <span class="text-sm text-gray-600">{form.description || "Bez popisu"}</span>
                     </a>
-                    <a href="/form-edit/{form.id}" class="text-blue-600 hover:underline"> Edit </a>
-                    <a href="/form-summary/{form.id}" class="text-blue-600 hover:underline"> Shrnutí </a>
+                    <a href="/form-edit/{form.templateId}" class="text-blue-600 hover:underline"> Edit </a>
+                    <a href="/form-summary/{form.templateId}" class="text-blue-600 hover:underline"> Shrnutí </a>
                 </li>
             {/each}
         </ul>

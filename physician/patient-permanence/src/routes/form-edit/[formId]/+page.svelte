@@ -56,14 +56,6 @@
     }
 
     async function handleDelete() {
-        if (
-            !confirm(
-                `Are you sure you want to delete the form "${data.formId}"? This cannot be undone.`,
-            )
-        ) {
-            return;
-        }
-
         errorMessage = "";
         successMessage = "";
         isProcessing = true;

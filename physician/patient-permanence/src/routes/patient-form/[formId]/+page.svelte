@@ -1,6 +1,7 @@
 <script>
     import { browser } from "$app/environment";
     import { onDestroy } from "svelte"; // Import onDestroy for potential cleanup
+    import { formSaveAnswers } from "$lib/formStore";
 
     // --- Component Props (Svelte 5) ---
     // Use $props() to get the props passed from the load function.
@@ -57,7 +58,7 @@
                 }
 
                 // Parse the JSON string provided by the load function
-                const parsedJson = JSON.parse(data.formJsonString);
+                const parsedJson = JSON.parse(data.formJsonString).formTemplate;
 
                 // *** IMPORTANT: Adjust based on your actual JSON structure ***
                 // Assuming the structure saved by monitoring-config is { formTemplate: { ... } }
@@ -211,6 +212,8 @@
             // --- Placeholder for actual submission logic ---
             // Example: await invoke('submit_patient_form', { formData: submissionData });
             // ----------------------------------------------
+
+            await formSaveAnswers(data.formId, submissionData.answers);
 
             submissionMessage = "Formulář byl úspěšně odeslán!";
             submissionSuccess = true;

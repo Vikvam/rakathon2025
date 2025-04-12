@@ -23,35 +23,36 @@
                 isLoading = false;
             });
     });
-
-    function goToCreateForm() {
-        goto("/form-definition");
-    }
 </script>
 
-<h1>Available Form Definitions</h1>
-
-<button onclick={goToCreateForm} style="margin-bottom: 20px;">
-    Create New Form Definition
-</button>
-
 {#if isLoading}
-    <p>Loading form definitions...</p>
+<p>Loading form definitions...</p>
 {:else if error}
-    <p style="color: red;">{error}</p>
+<p style="color: red;">{error}</p>
 {:else if forms.length === 0}
-    <p>No form definitions found. Create one!</p>
+<p>No form definitions found. Create one!</p>
 {:else}
+    <h1>Available Form Definitions</h1>
     <ul>
         {#each forms as form (form.id)}
             <li>
                 <a href="/patient-form/{form.id}">
-                    {form.name} ({form.id})
+                    {form.name}
+                    <br>
+                    {form.description || "Bez popisu"}
                 </a>
+                <a href="/form-edit/{form.id}"> Edit </a>
             </li>
         {/each}
     </ul>
 {/if}
+
+<ul>
+    <li>
+        <a href="/patient-code-input">Zadání kódu od lékaře</a>
+    </li>
+</ul>
+
 
 <style>
     ul {

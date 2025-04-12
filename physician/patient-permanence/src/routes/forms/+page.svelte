@@ -1,5 +1,5 @@
 <script>
-    import { listForms } from "$lib/formStore.js";
+    import {getForms, listForms} from "$lib/formStore.js";
 
     let forms = $state([]);
     let isLoading = $state(true);
@@ -9,7 +9,7 @@
     $effect(() => {
         isLoading = true;
         error = null;
-        listForms()
+        getForms()
             .then((data) => {
                 forms = data;
             })
@@ -33,9 +33,9 @@
     <h1 class="mb-6 text-center text-2xl font-bold text-gray-800">Aktuální dotazníky</h1>
     <div class="w-full max-w-md mx-auto rounded-lg border border-gray-200 bg-white p-6 shadow-md">
         <ul>
-            {#each forms as form (form.id)}
+            {#each forms as form (form.templateId)}
                 <li>
-                    <a href="/patient-form/{form.id}" class="block mb-2">
+                    <a href="/patient-form/{form.templateId}" class="block mb-2">
                         <span class="font-medium">{form.name}</span>
                         <br>
                         <span class="text-sm text-gray-600">{form.description || "Bez popisu"}</span>

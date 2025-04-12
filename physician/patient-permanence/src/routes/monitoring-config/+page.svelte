@@ -14,7 +14,7 @@
     let categoriesData = $state([]);
     let generatedJsonOutput = $state(""); // State to hold the generated JSON string
 
-    let config = $state({});
+    let formName = $state("");
 
     // --- Constants ---
     const frequencyOptions = [
@@ -166,7 +166,7 @@
         isLoading = true;
         getConfig()
             .then((data) => {
-                config = data;
+                formName = `${data.user}, ${data.workspace}`;
             })
             .catch((err) => {
                 console.error("Failed to load forms:", err);
@@ -296,7 +296,7 @@
 
         const formTemplate = {
             templateId: templateId,
-            name: "Vlastní Konfigurace", // Default name
+            name: formName, // Default name
             description: "Vygenerováno z konfiguračního nástroje", // Default description
             // Include predefined default schedules (adjust if needed)
             defaultSchedules: [
@@ -448,7 +448,7 @@
         {#if !isLoading}
             <div>
                 <h2 class="text-l font-semibold mb-3 text-gray-700 pt-4">
-                    Název dotazníku: {config.user}
+                    Název dotazníku: {formName}
                 </h2>
                 <p class="text-sm text-gray-600 mb-6 leading-relaxed">
                     Zaškrtněte kategorie a otázky, které chcete zahrnout. U

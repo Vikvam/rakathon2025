@@ -8,7 +8,7 @@
 
     async function submitCode() {
         if (!code || code.length !== 6) {
-            error = "Please enter a valid 6-digit code";
+            error = "Zadejte platný 6-místný kód";
             status = "error";
             return;
         }
@@ -48,7 +48,7 @@
                     JSON.stringify(data.data),
                 );
                 setTimeout(() => {
-                    goto("/patient-form/" + formId);
+                    goto("/forms");
                 }, 1000);
             } else {
                 throw new Error("Unexpected response from server");
@@ -59,7 +59,7 @@
             error =
                 err instanceof Error
                     ? err.message
-                    : "Failed to connect to doctor. Please check the code and try again.";
+                    : "Nepodařilo se připojit k lékaři. Zkontrolujte kód a zkuste to znovu.";
         }
     }
 
@@ -71,18 +71,23 @@
 </script>
 
 <div class="container">
-    <h1>Connect to Your Doctor</h1>
+    <div class="back-button-container">
+        <button class="back-button" on:click={() => goto('/forms')}>
+            ← Zpět
+        </button>
+    </div>
+    
+    <h1>Stažení nových dotazníků od lékaře</h1>
 
     <div class="input-container">
         <label for="code-input"
-            >Enter the 6-digit code provided by your doctor:</label
+            >Zadejte 6-místný kód poskytnutý lékařem:</label
         >
         <input
             id="code-input"
             type="text"
             bind:value={code}
             on:input={handleInput}
-            placeholder="123456"
             maxlength="6"
             disabled={status === "submitting" || status === "success"}
         />
@@ -94,9 +99,9 @@
                 status === "success"}
         >
             {#if status === "submitting"}
-                Connecting...
+                Stahuji dotazníky...
             {:else}
-                Connect
+                Potvrdit
             {/if}
         </button>
     </div>
@@ -107,7 +112,7 @@
         </div>
     {:else if status === "success"}
         <div class="success">
-            Connection successful! Redirecting to your form...
+            Dotazníky byly úspěšně staženy.
         </div>
     {/if}
 </div>
@@ -120,6 +125,27 @@
         justify-content: center;
         min-height: 100vh;
         padding: 1rem;
+        position: relative;
+    }
+
+    .back-button-container {
+        position: absolute;
+        top: 1rem;
+        left: 1rem;
+    }
+
+    .back-button {
+        background-color: transparent;
+        color: #3498db;
+        border: 1px solid #3498db;
+        border-radius: 4px;
+        padding: 0.5rem 1rem;
+        cursor: pointer;
+        font-size: 1rem;
+    }
+
+    .back-button:hover {
+        background-color: #f1f9fe;
     }
 
     h1 {

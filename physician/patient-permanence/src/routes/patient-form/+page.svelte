@@ -1,6 +1,7 @@
 <script>
     import { browser } from "$app/environment";
     import { onMount } from "svelte"; // Or use $effect
+    import { page } from "$app/stores";
 
     // --- Default Form Data ---
     const defaultFormData = $state({
@@ -72,6 +73,7 @@
     let submissionMessage = $state("");
     let submissionSuccess = $state(false);
     let isSubmitting = $state(false);
+    let doctorSessionData = $state(null);
 
     // --- Reactive Derived State ---
     const currentQuestion = $derived(
@@ -93,6 +95,12 @@
         console.log("Effect: Loading form data...");
         const timer = setTimeout(() => {
             try {
+                // Check if we have doctor session data from navigation state
+                if (browser && window.history.state?.formData) {
+                    doctorSessionData = window.history.state.formData;
+                    console.log("Doctor session data received:", doctorSessionData);
+                }
+                
                 if (
                     !defaultFormData ||
                     !defaultFormData.questions ||
@@ -191,7 +199,6 @@
     }
 
     async function handleFinalSubmit() {
-        /* ... remains the same ... */
         isSubmitting = true;
         submissionMessage = "";
         submissionSuccess = false;
@@ -200,6 +207,7 @@
             formTemplateId: formData.templateId,
             timestamp: new Date().toISOString(),
             answers: { ...answers },
+            doctorSessionData: doctorSessionData // Include the doctor session data if available
         };
 
         console.log("Form Submitted:", submissionData);

@@ -1,6 +1,7 @@
 <script lang="ts">
     import { onMount, onDestroy } from "svelte";
     import { browser } from "$app/environment"; // Import browser check
+    import { goto } from "$app/navigation"; // Import goto for navigation
 
     let ws: WebSocket | null = null; // WebSocket instance
     let code = ""; // 6-digit code for patient connection
@@ -52,7 +53,8 @@
         error = ""; // Clear previous errors
 
         // Establish WebSocket connection
-        ws = new WebSocket("wss://rakathon-proxy.manakjiri.cz/doctor"); // Use your actual WebSocket endpoint
+        // Ensure you are using the correct WebSocket endpoint
+        ws = new WebSocket("wss://rakathon-proxy.manakjiri.cz/doctor");
 
         /** Handles the WebSocket connection opening. */
         ws.onopen = () => {
@@ -215,6 +217,11 @@
                 "Nelze opakovat spojení (prostředí prohlížeče není dostupné).";
         }
     }
+
+    /** Navigates to the monitoring config page */
+    function goToConfig() {
+        goto("/monitoring-config");
+    }
 </script>
 
 <div
@@ -223,154 +230,162 @@
     <div
         class="w-full max-w-lg rounded-lg border border-gray-200 bg-white p-6 text-center shadow-md md:p-8"
     >
-        {#if status === "initializing"}
-            <h2 class="mb-4 text-lg font-medium text-gray-700">
-                Inicializace spojení...
-            </h2>
-            <svg
-                class="mx-auto h-8 w-8 animate-spin text-blue-600"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-            >
-                <circle
-                    class="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    stroke-width="4"
-                ></circle>
-                <path
-                    class="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                ></path>
-            </svg>
-        {:else if status === "connected"}
-            <h2 class="mb-4 text-lg font-medium text-gray-700">
-                Spojeno, příprava relace...
-            </h2>
-            <svg
-                class="mx-auto h-8 w-8 animate-spin text-blue-600"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-            >
-                <circle
-                    class="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    stroke-width="4"
-                ></circle>
-                <path
-                    class="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                ></path>
-            </svg>
-        {:else if status === "waiting"}
-            <h2 class="mb-2 text-lg font-medium text-gray-700">
-                Čekání na připojení pacienta
-            </h2>
-            <p class="mb-6 text-sm text-gray-600">
-                Prosím, sdělte pacientovi tento kód pro připojení:
-            </p>
-            <div
-                class="inline-block rounded-lg border border-blue-200 bg-blue-50 px-6 py-4 shadow-sm"
-            >
+        <div class="mb-6">
+            {#if status === "initializing"}
+                <h2 class="mb-4 text-lg font-medium text-gray-700">
+                    Inicializace spojení...
+                </h2>
+                <svg
+                    class="mx-auto h-8 w-8 animate-spin text-blue-600"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                >
+                    <circle
+                        class="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        stroke-width="4"
+                    ></circle>
+                    <path
+                        class="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                </svg>
+            {:else if status === "connected"}
+                <h2 class="mb-4 text-lg font-medium text-gray-700">
+                    Spojeno, příprava relace...
+                </h2>
+                <svg
+                    class="mx-auto h-8 w-8 animate-spin text-blue-600"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                >
+                    <circle
+                        class="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        stroke-width="4"
+                    ></circle>
+                    <path
+                        class="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                </svg>
+            {:else if status === "waiting"}
+                <h2 class="mb-2 text-lg font-medium text-gray-700">
+                    Čekání na připojení pacienta
+                </h2>
+                <p class="mb-6 text-sm text-gray-600">
+                    Prosím, sdělte pacientovi tento kód pro připojení:
+                </p>
                 <div
-                    class="text-4xl font-bold tracking-widest text-blue-700 sm:text-5xl"
+                    class="inline-block rounded-lg border border-blue-200 bg-blue-50 px-6 py-4 shadow-sm"
                 >
-                    {code}
+                    <div
+                        class="text-4xl font-bold tracking-widest text-blue-700 sm:text-5xl"
+                    >
+                        {code}
+                    </div>
                 </div>
-            </div>
-            <p class="mt-6 text-xs text-gray-500">
-                Tato relace zůstane aktivní, dokud se pacient nepřipojí.
-            </p>
-        {:else if status === "success"}
-            <div
-                class="rounded-md border border-green-300 bg-green-100 p-4 text-center text-sm text-green-800"
-                role="status"
-            >
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="mx-auto mb-3 h-12 w-12 text-green-600"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    stroke-width="2"
+                <p class="mt-6 text-xs text-gray-500">
+                    Tato relace zůstane aktivní, dokud se pacient nepřipojí.
+                </p>
+            {:else if status === "success"}
+                <div
+                    class="rounded-md border border-green-300 bg-green-100 p-4 text-center text-sm text-green-800"
+                    role="status"
                 >
-                    <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                    />
-                </svg>
-                <p class="font-medium">Konfigurace byla úspěšně odeslána!</p>
-                <p>Spojení bylo ukončeno.</p>
-            </div>
-            <a
-                href="/monitoring-config"
-                class="mt-4 inline-block rounded-md border border-transparent bg-green-600 py-2 px-5 text-sm font-medium text-white shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
-                >Nová relace</a
-            >
-        {:else if status === "error"}
-            <div
-                class="rounded-md border border-red-300 bg-red-100 p-4 text-center text-sm text-red-700"
-                role="alert"
-            >
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="mx-auto mb-3 h-12 w-12 text-red-600"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    stroke-width="2"
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="mx-auto mb-3 h-12 w-12 text-green-600"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        stroke-width="2"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                    </svg>
+                    <p class="font-medium">
+                        Konfigurace byla úspěšně odeslána!
+                    </p>
+                    <p>Spojení bylo ukončeno.</p>
+                </div>
+            {:else if status === "error"}
+                <div
+                    class="rounded-md border border-red-300 bg-red-100 p-4 text-center text-sm text-red-700"
+                    role="alert"
                 >
-                    <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                    />
-                </svg>
-                <p class="font-medium">Chyba spojení</p>
-                <p>{error}</p>
-            </div>
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="mx-auto mb-3 h-12 w-12 text-red-600"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        stroke-width="2"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                    </svg>
+                    <p class="font-medium">Chyba spojení</p>
+                    <p>{error}</p>
+                </div>
+                <button
+                    on:click={retryConnection}
+                    class="mt-4 inline-block rounded-md border border-transparent bg-red-600 py-2 px-5 text-sm font-medium text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                    >Zkusit znovu</button
+                >
+            {:else if status === "no_config"}
+                <div
+                    class="rounded-md border border-yellow-300 bg-yellow-100 p-4 text-center text-sm text-yellow-800"
+                    role="alert"
+                >
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="mx-auto mb-3 h-12 w-12 text-yellow-500"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        stroke-width="2"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                        />
+                    </svg>
+                    <p class="font-medium">Chybí konfigurace</p>
+                    <p>{error}</p>
+                </div>
+                <button
+                    on:click={goToConfig}
+                    class="mt-4 inline-block rounded-md border border-transparent bg-yellow-500 py-2 px-5 text-sm font-medium text-white shadow-sm hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2"
+                    >Zpět na konfiguraci</button
+                >
+            {/if}
+        </div>
+
+        <div class="border-t border-gray-200 pt-6">
             <button
-                on:click={retryConnection}
-                class="mt-4 inline-block rounded-md border border-transparent bg-red-600 py-2 px-5 text-sm font-medium text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
-                >Zkusit znovu</button
+                on:click={goToConfig}
+                class="inline-block w-full rounded-md border border-transparent bg-blue-600 py-2 px-5 text-center text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:w-auto"
             >
-        {:else if status === "no_config"}
-            <div
-                class="rounded-md border border-yellow-300 bg-yellow-100 p-4 text-center text-sm text-yellow-800"
-                role="alert"
-            >
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="mx-auto mb-3 h-12 w-12 text-yellow-500"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    stroke-width="2"
-                >
-                    <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-                    />
-                </svg>
-                <p class="font-medium">Chybí konfigurace</p>
-                <p>{error}</p>
-            </div>
-            <a
-                href="/monitoring-config"
-                class="mt-4 inline-block rounded-md border border-transparent bg-yellow-500 py-2 px-5 text-sm font-medium text-white shadow-sm hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2"
-                >Zpět na konfiguraci</a
-            >
-        {/if}
+                Vytvořit nový dotazník
+            </button>
+        </div>
     </div>
 </div>

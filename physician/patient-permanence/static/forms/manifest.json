@@ -1,1 +1,15 @@
-["pain.json", "psych-state.json", "medication_adherence.json"]
+[
+  "pain.json",
+  "psych-state.json",
+  "medication_adherence.json",
+  "neuro_symptoms.json",
+  "fatigue_state.json",
+  "endocrine_symptoms.json",
+  "lung_symptoms.json",
+  "gi_symptoms.json",
+  "skin_symptoms.json",
+  "eye_symptoms.json",
+  "urinary_symptoms.json",
+  "cardio_symptoms.json",
+  "inflammation_autoimmune.json"
+]

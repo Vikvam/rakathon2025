@@ -1,0 +1,93 @@
+{
+  "formTemplate": {
+    "templateId": "FORM_ENDO_SYMPTOMS_01",
+    "name": "Endokrinní systém",
+    "description": "Dotazník pro sledování příznaků souvisejících s endokrinním systémem.",
+    "defaultSchedules": [
+      {
+        "scheduleId": "SCHED_DAILY_0900",
+        "frequency": "daily",
+        "dayOfWeek": null,
+        "timeOfDay": "09:00"
+      },
+      {
+        "scheduleId": "SCHED_WEEKLY_MON_1000",
+        "frequency": "weekly",
+        "dayOfWeek": "Monday",
+        "timeOfDay": "10:00"
+      },
+      {
+        "scheduleId": "SCHED_BIWEEKLY_MON_1000",
+        "frequency": "biweekly",
+        "dayOfWeek": "Monday",
+        "timeOfDay": "10:00"
+      }
+    ],
+    "questions": [
+      {
+        "key": "endo_hot_flashes_chills_temp_fluctuations",
+        "text": "Máte návaly horka, zimnici nebo výkyvy tělesné teploty?",
+        "dataType": "single_choice",
+        "options": [
+          { "value": "yes", "text": "Ano" },
+          { "value": "no", "text": "Ne" }
+        ],
+        "defaultValue": "no",
+        "problematicValues": ["yes"],
+        "criticalValues": [],
+        "timeParameterization": {
+          "scheduleId": "SCHED_WEEKLY_MON_1000",
+          "timestamp": null
+        }
+      },
+      {
+        "key": "endo_appetite_weight_change",
+        "text": "Změnila se Vaše chuť k jídlu nebo váha (výrazný úbytek nebo přírůstek)?",
+        "dataType": "single_choice",
+        "options": [
+          { "value": "yes", "text": "Ano" },
+          { "value": "no", "text": "Ne" }
+        ],
+        "defaultValue": "no",
+        "problematicValues": ["yes"],
+        "criticalValues": [],
+        "timeParameterization": {
+          "scheduleId": "SCHED_WEEKLY_MON_1000",
+          "timestamp": null
+        }
+      },
+      {
+        "key": "endo_palpitations_tremor_restlessness",
+        "text": "Máte bušení srdce, třes nebo pocit vnitřního neklidu?",
+        "dataType": "single_choice",
+        "options": [
+          { "value": "yes", "text": "Ano" },
+          { "value": "no", "text": "Ne" }
+        ],
+        "defaultValue": "no",
+        "problematicValues": ["yes"],
+        "criticalValues": [],
+        "timeParameterization": {
+          "scheduleId": "SCHED_WEEKLY_MON_1000",
+          "timestamp": null
+        }
+      },
+      {
+        "key": "endo_constipation_cold_sensitivity_dry_skin",
+        "text": "Máte zácpu, citlivost na chlad nebo suchou kůži?",
+        "dataType": "single_choice",
+        "options": [
+          { "value": "yes", "text": "Ano" },
+          { "value": "no", "text": "Ne" }
+        ],
+        "defaultValue": "no",
+        "problematicValues": ["yes"],
+        "criticalValues": [],
+        "timeParameterization": {
+          "scheduleId": "SCHED_WEEKLY_MON_1000",
+          "timestamp": null
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,93 @@
+{
+  "formTemplate": {
+    "templateId": "FORM_GI_SYMPTOMS_01",
+    "name": "Gastrointestinální trakt",
+    "description": "Dotazník pro sledování gastrointestinálních příznaků.",
+    "defaultSchedules": [
+      {
+        "scheduleId": "SCHED_DAILY_0900",
+        "frequency": "daily",
+        "dayOfWeek": null,
+        "timeOfDay": "09:00"
+      },
+      {
+        "scheduleId": "SCHED_WEEKLY_MON_1000",
+        "frequency": "weekly",
+        "dayOfWeek": "Monday",
+        "timeOfDay": "10:00"
+      },
+      {
+        "scheduleId": "SCHED_BIWEEKLY_MON_1000",
+        "frequency": "biweekly",
+        "dayOfWeek": "Monday",
+        "timeOfDay": "10:00"
+      }
+    ],
+    "questions": [
+      {
+        "key": "gi_diarrhea",
+        "text": "Máte průjem?",
+        "dataType": "single_choice",
+        "options": [
+          { "value": "yes", "text": "Ano" },
+          { "value": "no", "text": "Ne" }
+        ],
+        "defaultValue": "no",
+        "problematicValues": ["yes"],
+        "criticalValues": [],
+        "timeParameterization": {
+          "scheduleId": "SCHED_WEEKLY_MON_1000",
+          "timestamp": null
+        }
+      },
+      {
+        "key": "gi_nausea_vomiting",
+        "text": "Máte nevolnost nebo zvracení?",
+        "dataType": "single_choice",
+        "options": [
+          { "value": "yes", "text": "Ano" },
+          { "value": "no", "text": "Ne" }
+        ],
+        "defaultValue": "no",
+        "problematicValues": ["yes"],
+        "criticalValues": [],
+        "timeParameterization": {
+          "scheduleId": "SCHED_WEEKLY_MON_1000",
+          "timestamp": null
+        }
+      },
+      {
+        "key": "gi_abdominal_pain",
+        "text": "Máte bolesti břicha?",
+        "dataType": "single_choice",
+        "options": [
+          { "value": "yes", "text": "Ano" },
+          { "value": "no", "text": "Ne" }
+        ],
+        "defaultValue": "no",
+        "problematicValues": ["yes"],
+        "criticalValues": [],
+        "timeParameterization": {
+          "scheduleId": "SCHED_WEEKLY_MON_1000",
+          "timestamp": null
+        }
+      },
+      {
+        "key": "gi_blood_in_stool",
+        "text": "Máte krev ve stolici?",
+        "dataType": "single_choice",
+        "options": [
+          { "value": "yes", "text": "Ano" },
+          { "value": "no", "text": "Ne" }
+        ],
+        "defaultValue": "no",
+        "problematicValues": [],
+        "criticalValues": ["yes"],
+        "timeParameterization": {
+          "scheduleId": "SCHED_WEEKLY_MON_1000",
+          "timestamp": null
+        }
+      }
+    ]
+  }
+}

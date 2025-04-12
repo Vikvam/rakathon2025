@@ -1,0 +1,109 @@
+{
+  "formTemplate": {
+    "templateId": "FORM_NEURO_SYMPTOMS_01",
+    "name": "Neurologické příznaky",
+    "description": "Dotazník pro sledování neurologických příznaků.",
+    "defaultSchedules": [
+      {
+        "scheduleId": "SCHED_DAILY_0900",
+        "frequency": "daily",
+        "dayOfWeek": null,
+        "timeOfDay": "09:00"
+      },
+      {
+        "scheduleId": "SCHED_WEEKLY_MON_1000",
+        "frequency": "weekly",
+        "dayOfWeek": "Monday",
+        "timeOfDay": "10:00"
+      },
+      {
+        "scheduleId": "SCHED_BIWEEKLY_MON_1000",
+        "frequency": "biweekly",
+        "dayOfWeek": "Monday",
+        "timeOfDay": "10:00"
+      }
+    ],
+    "questions": [
+      {
+        "key": "neuro_headache",
+        "text": "Máte bolesti hlavy?",
+        "dataType": "single_choice",
+        "options": [
+          { "value": "yes", "text": "Ano" },
+          { "value": "no", "text": "Ne" }
+        ],
+        "defaultValue": "no",
+        "problematicValues": ["yes"],
+        "criticalValues": [],
+        "timeParameterization": {
+          "scheduleId": "SCHED_WEEKLY_MON_1000",
+          "timestamp": null
+        }
+      },
+      {
+        "key": "neuro_dizziness",
+        "text": "Máte závratě?",
+        "dataType": "single_choice",
+        "options": [
+          { "value": "yes", "text": "Ano" },
+          { "value": "no", "text": "Ne" }
+        ],
+        "defaultValue": "no",
+        "problematicValues": ["yes"],
+        "criticalValues": [],
+        "timeParameterization": {
+          "scheduleId": "SCHED_WEEKLY_MON_1000",
+          "timestamp": null
+        }
+      },
+      {
+        "key": "neuro_balance_issues",
+        "text": "Máte problémy s rovnováhou?",
+        "dataType": "single_choice",
+        "options": [
+          { "value": "yes", "text": "Ano" },
+          { "value": "no", "text": "Ne" }
+        ],
+        "defaultValue": "no",
+        "problematicValues": ["yes"],
+        "criticalValues": [],
+        "timeParameterization": {
+          "scheduleId": "SCHED_WEEKLY_MON_1000",
+          "timestamp": null
+        }
+      },
+      {
+        "key": "neuro_mood_memory_behavior_changes",
+        "text": "Zaznamenal(a) jste změny v náladě, paměti nebo chování?",
+        "dataType": "single_choice",
+        "options": [
+          { "value": "yes", "text": "Ano" },
+          { "value": "no", "text": "Ne" }
+        ],
+        "defaultValue": "no",
+        "problematicValues": ["yes"],
+        "criticalValues": [],
+        "timeParameterization": {
+          "scheduleId": "SCHED_WEEKLY_MON_1000",
+          "timestamp": null
+        }
+      },
+      {
+        "key": "neuro_limb_weakness_tingling",
+        "text": "Cítíte slabost nebo brnění v končetinách?",
+        "dataType": "single_choice",
+        "options": [
+          { "value": "yes", "text": "Ano" },
+          { "value": "no", "text": "Ne" }
+        ],
+        "defaultValue": "no",
+        "problematicValues": ["yes"],
+        "criticalValues": [],
+        "timeParameterization": {
+          "scheduleId": "SCHED_WEEKLY_MON_1000",
+          "timestamp": null
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,61 @@
+{
+  "formTemplate": {
+    "templateId": "FORM_CARDIO_SYMPTOMS_01",
+    "name": "Srdce a cévní systém",
+    "description": "Dotazník pro sledování kardiovaskulárních příznaků.",
+    "defaultSchedules": [
+      {
+        "scheduleId": "SCHED_DAILY_0900",
+        "frequency": "daily",
+        "dayOfWeek": null,
+        "timeOfDay": "09:00"
+      },
+      {
+        "scheduleId": "SCHED_WEEKLY_MON_1000",
+        "frequency": "weekly",
+        "dayOfWeek": "Monday",
+        "timeOfDay": "10:00"
+      },
+      {
+        "scheduleId": "SCHED_BIWEEKLY_MON_1000",
+        "frequency": "biweekly",
+        "dayOfWeek": "Monday",
+        "timeOfDay": "10:00"
+      }
+    ],
+    "questions": [
+      {
+        "key": "cardio_chest_pain",
+        "text": "Zaznamenal(a) jste bolest na hrudi?",
+        "dataType": "single_choice",
+        "options": [
+          { "value": "yes", "text": "Ano" },
+          { "value": "no", "text": "Ne" }
+        ],
+        "defaultValue": "no",
+        "problematicValues": [],
+        "criticalValues": ["yes"],
+        "timeParameterization": {
+          "scheduleId": "SCHED_WEEKLY_MON_1000",
+          "timestamp": null
+        }
+      },
+      {
+        "key": "cardio_leg_swelling",
+        "text": "Zaznamenal(a) jste otoky nohou?",
+        "dataType": "single_choice",
+        "options": [
+          { "value": "yes", "text": "Ano" },
+          { "value": "no", "text": "Ne" }
+        ],
+        "defaultValue": "no",
+        "problematicValues": ["yes"],
+        "criticalValues": [],
+        "timeParameterization": {
+          "scheduleId": "SCHED_WEEKLY_MON_1000",
+          "timestamp": null
+        }
+      }
+    ]
+  }
+}

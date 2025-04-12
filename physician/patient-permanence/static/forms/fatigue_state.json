@@ -1,0 +1,61 @@
+{
+  "formTemplate": {
+    "templateId": "FORM_FATIGUE_STATE_01",
+    "name": "Únava a celkový stav",
+    "description": "Dotazník pro sledování únavy a celkového stavu.",
+    "defaultSchedules": [
+      {
+        "scheduleId": "SCHED_DAILY_0900",
+        "frequency": "daily",
+        "dayOfWeek": null,
+        "timeOfDay": "09:00"
+      },
+      {
+        "scheduleId": "SCHED_WEEKLY_MON_1000",
+        "frequency": "weekly",
+        "dayOfWeek": "Monday",
+        "timeOfDay": "10:00"
+      },
+      {
+        "scheduleId": "SCHED_BIWEEKLY_MON_1000",
+        "frequency": "biweekly",
+        "dayOfWeek": "Monday",
+        "timeOfDay": "10:00"
+      }
+    ],
+    "questions": [
+      {
+        "key": "fatigue_more_than_usual",
+        "text": "Cítíte se výrazně unavenější než obvykle?",
+        "dataType": "single_choice",
+        "options": [
+          { "value": "yes", "text": "Ano" },
+          { "value": "no", "text": "Ne" }
+        ],
+        "defaultValue": "no",
+        "problematicValues": ["yes"],
+        "criticalValues": [],
+        "timeParameterization": {
+          "scheduleId": "SCHED_DAILY_0900",
+          "timestamp": null
+        }
+      },
+      {
+        "key": "fatigue_sleep_issues_somnolence",
+        "text": "Máte potíže se spánkem nebo nadměrnou ospalost?",
+        "dataType": "single_choice",
+        "options": [
+          { "value": "yes", "text": "Ano" },
+          { "value": "no", "text": "Ne" }
+        ],
+        "defaultValue": "no",
+        "problematicValues": ["yes"],
+        "criticalValues": [],
+        "timeParameterization": {
+          "scheduleId": "SCHED_DAILY_0900",
+          "timestamp": null
+        }
+      }
+    ]
+  }
+}

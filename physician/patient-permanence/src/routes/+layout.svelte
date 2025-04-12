@@ -22,7 +22,6 @@
 
     .page-content {
         flex-grow: 1; /* Allows main content to fill available space */
-        padding: 20px; /* Add some padding around page content */
         /* Resetting container styles from the original +page.svelte if needed */
         /* The specific page content will define its own layout now */
     }

@@ -1,6 +1,6 @@
 <script lang="ts">
     import { goto } from "$app/navigation";
-    import { saveForm } from "$lib/formStore";
+    import { saveForm } from "$lib/formStore"; // Assuming this utility exists
 
     let code = "";
     let status: "idle" | "submitting" | "error" | "success" = "idle";
@@ -8,7 +8,7 @@
 
     async function submitCode() {
         if (!code || code.length !== 6) {
-            error = "Zadejte platný 6-místný kód";
+            error = "Prosím zadejte platný 6místný kód"; // Updated error message
             status = "error";
             return;
         }
@@ -17,6 +17,7 @@
         error = "";
 
         try {
+            // API endpoint for patient session query
             const response = await fetch(
                 "https://rakathon-proxy.manakjiri.cz/patient",
                 {
@@ -26,36 +27,50 @@
                     },
                     body: JSON.stringify({
                         message_type: "patient_session_query",
-                        code: parseInt(code),
+                        code: parseInt(code), // Send code as number
                     }),
                 },
             );
 
             if (!response.ok) {
-                throw new Error(
-                    `Server responded with status: ${response.status}`,
-                );
+                // Handle non-successful HTTP responses
+                let serverError = `Server odpověděl chybou: ${response.status}`;
+                try {
+                    // Try to get more specific error from response body
+                    const errorData = await response.json();
+                    serverError =
+                        errorData.message || errorData.error || serverError;
+                } catch (e) {
+                    // Ignore if response body is not JSON or empty
+                }
+                throw new Error(serverError);
             }
 
             const data = await response.json();
 
-            if (data.message_type === "patient_session_response") {
+            // Check for expected response type
+            if (
+                data.message_type === "patient_session_response" &&
+                data.data?.formTemplate
+            ) {
                 status = "success";
-                // Redirect to patient form page with the data
                 let formId = data.data.formTemplate.templateId;
-                const success = await saveForm(
-                    formId,
-                    JSON.stringify(data.data),
-                );
+
+                // Save the received form data (assuming saveForm handles potential errors)
+                await saveForm(formId, JSON.stringify(data.data));
+
+                // Redirect after a short delay
                 setTimeout(() => {
                     goto("/forms");
                 }, 1000);
             } else {
-                throw new Error("Unexpected response from server");
+                // Handle unexpected response structure
+                throw new Error("Neočekávaná odpověď ze serveru.");
             }
         } catch (err: unknown) {
             console.error("Error connecting to doctor session:", err);
             status = "error";
+            // Set user-friendly error message
             error =
                 err instanceof Error
                     ? err.message
@@ -64,149 +79,92 @@
     }
 
     function handleInput(event: Event) {
-        // Ensure only numbers are entered
+        // Ensure only numbers are entered and limit length
         const input = event.target as HTMLInputElement;
+        // Keep only digits 0-9 and limit to 6 characters
         code = input.value.replace(/[^0-9]/g, "").slice(0, 6);
+        // Update the input value directly to reflect sanitized code
+        input.value = code;
     }
 </script>
 
-<div class="container">
-    <div class="back-button-container">
-        <button class="back-button" on:click={() => goto('/forms')}>
-            ← Zpět
-        </button>
-    </div>
-    
-    <h1>Stažení nových dotazníků od lékaře</h1>
+<div
+    class="flex min-h-screen flex-col items-center justify-center bg-gray-50 p-4 font-sans"
+>
+    <div
+        class="w-full max-w-md rounded-lg border border-gray-200 bg-white p-6 shadow-md md:p-8"
+    >
+        <h1 class="mb-6 text-center text-2xl font-bold text-gray-800">
+            Připojit se k lékaři
+        </h1>
 
-    <div class="input-container">
-        <label for="code-input"
-            >Zadejte 6-místný kód poskytnutý lékařem:</label
-        >
-        <input
-            id="code-input"
-            type="text"
-            bind:value={code}
-            on:input={handleInput}
-            maxlength="6"
-            disabled={status === "submitting" || status === "success"}
-        />
+        <div class="mb-4">
+            <label
+                for="code-input"
+                class="mb-2 block text-sm font-medium text-gray-700"
+                >Zadejte 6místný kód od Vašeho lékaře:</label
+            >
+            <input
+                id="code-input"
+                type="text"
+                inputmode="numeric"
+                bind:value={code}
+                on:input={handleInput}
+                placeholder="123456"
+                maxlength="6"
+                disabled={status === "submitting" || status === "success"}
+                class="block w-full rounded-md border border-gray-300 px-3 py-3 text-center text-2xl font-mono tracking-[0.5em] shadow-sm placeholder:tracking-normal placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:cursor-not-allowed disabled:bg-gray-100 sm:text-3xl"
+            />
+        </div>
 
         <button
             on:click={submitCode}
             disabled={code.length !== 6 ||
                 status === "submitting" ||
                 status === "success"}
+            class="inline-flex w-full justify-center rounded-md border border-transparent bg-blue-600 py-2 px-4 text-base font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
         >
             {#if status === "submitting"}
-                Stahuji dotazníky...
+                <svg
+                    class="-ml-1 mr-3 h-5 w-5 animate-spin text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                >
+                    <circle
+                        class="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        stroke-width="4"
+                    ></circle>
+                    <path
+                        class="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                </svg>
+                Stahování...
             {:else}
                 Potvrdit
             {/if}
         </button>
+
+        {#if status === "error"}
+            <div
+                class="mt-4 rounded-md border border-red-300 bg-red-100 p-3 text-center text-sm text-red-700"
+                role="alert"
+            >
+                {error}
+            </div>
+        {:else if status === "success"}
+            <div
+                class="mt-4 rounded-md border border-green-300 bg-green-100 p-3 text-center text-sm text-green-800"
+                role="status"
+            >
+                Připojení úspěšné! Přesměrovávám na formulář...
+            </div>
+        {/if}
     </div>
-
-    {#if status === "error"}
-        <div class="error">
-            {error}
-        </div>
-    {:else if status === "success"}
-        <div class="success">
-            Dotazníky byly úspěšně staženy.
-        </div>
-    {/if}
 </div>
-
-<style>
-    .container {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        min-height: 100vh;
-        padding: 1rem;
-        position: relative;
-    }
-
-    .back-button-container {
-        position: absolute;
-        top: 1rem;
-        left: 1rem;
-    }
-
-    .back-button {
-        background-color: transparent;
-        color: #3498db;
-        border: 1px solid #3498db;
-        border-radius: 4px;
-        padding: 0.5rem 1rem;
-        cursor: pointer;
-        font-size: 1rem;
-    }
-
-    .back-button:hover {
-        background-color: #f1f9fe;
-    }
-
-    h1 {
-        margin-bottom: 2rem;
-        color: #333;
-    }
-
-    .input-container {
-        display: flex;
-        flex-direction: column;
-        width: 100%;
-        max-width: 400px;
-    }
-
-    label {
-        margin-bottom: 0.5rem;
-    }
-
-    input {
-        padding: 1rem;
-        font-size: 1.5rem;
-        text-align: center;
-        letter-spacing: 0.25rem;
-        margin-bottom: 1rem;
-        border: 2px solid #ddd;
-        border-radius: 4px;
-    }
-
-    input:focus {
-        outline: none;
-        border-color: #3498db;
-    }
-
-    button {
-        padding: 0.75rem 1rem;
-        background-color: #3498db;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 1rem;
-    }
-
-    button:hover:not(:disabled) {
-        background-color: #2980b9;
-    }
-
-    button:disabled {
-        background-color: #95a5a6;
-        cursor: not-allowed;
-    }
-
-    .error {
-        margin-top: 1rem;
-        color: #e74c3c;
-        text-align: center;
-    }
-
-    .success {
-        margin-top: 1rem;
-        color: #2ecc71;
-        text-align: center;
-    }
-</style>

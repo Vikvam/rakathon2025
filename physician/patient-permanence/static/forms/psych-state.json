@@ -30,25 +30,24 @@
         "dataType": "numerical",
         "problematicValues": {
           "deviation": {
-            "increasePercent": null, // Added null as per template
+            "increasePercent": null,
             "decreasePercent": 25
           },
           "range": {
             "min": 0,
             "max": 4
-            // repetitions not in template for problematic range
           }
         },
         "criticalValues": {
           "deviation": {
-            "increasePercent": null, // Added null as per template
+            "increasePercent": null,
             "decreasePercent": 40,
             "repetitions": 3
           },
           "range": {
             "min": 0,
             "max": 2,
-            "repetitions": 2 // Adjusted: template has reps here
+            "repetitions": 2
           }
         },
         "timeParameterization": {

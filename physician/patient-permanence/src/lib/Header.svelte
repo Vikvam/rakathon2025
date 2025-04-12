@@ -8,7 +8,10 @@
             <li><a href="/">Home</a></li>
             <li><a href="/forms">Forms</a></li>
             <li><a href="/form-definition">New Form Definition</a></li>
+            <li><a href="/monitoring-config">Monitoring Config</a></li>
             <li><a href="/form-assignment">Form Assignment</a></li>
+            <li><a href="/patient-form">Patient Form</a></li>
+            <li><a href="/notifications">Notifications</a></li>
         </ul>
     </nav>
 </header>
@@ -26,13 +29,15 @@
         padding: 0;
         margin: 0;
         display: flex;
-        gap: 20px; /* Adds space between links */
+        flex-wrap: wrap; /* Allow wrapping on smaller screens */
+        gap: 15px 20px; /* Adds space between links (row-gap column-gap) */
     }
 
     nav a {
         color: white;
         text-decoration: none;
         font-weight: bold;
+        white-space: nowrap; /* Prevent link text wrapping */
     }
 
     nav a:hover {

@@ -14,6 +14,18 @@
         "frequency": "weekly",
         "dayOfWeek": "Monday",
         "timeOfDay": "10:00"
+      },
+      {
+        "scheduleId": "SCHED_BIWEEKLY_MONDAY",
+        "frequency": "biweekly",
+        "dayOfWeek": "Tuesday",
+        "timeOfDay": "11:00"
+      },
+      {
+        "scheduleId": "SCHED_MONTHLY",
+        "frequency": "monthly",
+        "dayOfMonth": 13,
+        "timeOfDay": "14:00"
       }
     ],
     "questions": []

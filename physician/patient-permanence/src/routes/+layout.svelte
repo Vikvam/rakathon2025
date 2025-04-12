@@ -1,7 +1,7 @@
 <script>
     import Header from "$lib/Header.svelte";
     // Import any global styles if you have them, e.g.:
-    // import '../app.css';
+    import "../app.css";
 </script>
 
 <div class="app-container">

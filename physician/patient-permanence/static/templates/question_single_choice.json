@@ -13,5 +13,11 @@
   "timeParameterization": {
     "scheduleId": "SCHED_DAILY_MORNING",
     "timestamp": null
-  }
+  },
+  "answers": [
+    {
+      "timestamp": "2024-01-01T00:00:00Z",
+      "value": "opt_2"
+    }
+  ]
 }

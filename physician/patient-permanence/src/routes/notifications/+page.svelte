@@ -198,7 +198,6 @@
 </div>
 
 <style>
-    @tailwind base;
-    @tailwind components;
-    @tailwind utilities;
+    @reference '../../app.css'; /* Adjust path if needed */
+    @reference tailwindcss;
 </style>

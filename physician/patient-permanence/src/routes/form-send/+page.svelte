@@ -1,16 +1,23 @@
-<script>
+<script lang="ts">
     import { onMount, onDestroy } from "svelte";
     import { browser } from "$app/environment"; // Import browser check
 
-    let ws; // WebSocket instance
+    let ws: WebSocket | null = null; // WebSocket instance
     let code = ""; // 6-digit code for patient connection
-    let status = "initializing"; // Current status: 'initializing' | 'connected' | 'waiting' | 'success' | 'error' | 'no_config'
+    let status:
+        | "initializing"
+        | "connected"
+        | "waiting"
+        | "success"
+        | "error"
+        | "no_config" = "initializing"; // Current status
     let error = ""; // Error message string
-    let configJsonString = null; // Variable to hold the JSON string from sessionStorage
+    let configJsonString: string | null = null; // Variable to hold the JSON string from sessionStorage
+    let configData: any = null; // Variable to hold the parsed config data
     const SESSION_STORAGE_KEY = "pendingConfigJson"; // Key for sessionStorage access
 
     /** Generates a random 6-digit code. */
-    function generateCode() {
+    function generateCode(): string {
         return Math.floor(100000 + Math.random() * 899999).toString();
     }
 
@@ -25,17 +32,16 @@
         }
 
         // Attempt to parse the configuration JSON
-        let configData;
         try {
             configData = JSON.parse(configJsonString);
             // Basic validation: Ensure the expected structure exists
             if (!configData || !configData.formTemplate) {
                 throw new Error("Neplatný formát konfiguračních dat.");
             }
-        } catch (e) {
+        } catch (e: unknown) {
             // Handle JSON parsing errors
             status = "error";
-            error = `Chyba při zpracování konfiguračních dat: ${e.message}`;
+            error = `Chyba při zpracování konfiguračních dat: ${e instanceof Error ? e.message : "Neznámá chyba"}`;
             console.error("Failed to parse configuration JSON:", e);
             return; // Stop initialization if parsing fails
         }
@@ -46,24 +52,25 @@
         error = ""; // Clear previous errors
 
         // Establish WebSocket connection
-        // Use your actual WebSocket endpoint URL here
-        ws = new WebSocket("wss://rakathon-proxy.manakjiri.cz/doctor");
+        ws = new WebSocket("wss://rakathon-proxy.manakjiri.cz/doctor"); // Use your actual WebSocket endpoint
 
         /** Handles the WebSocket connection opening. */
         ws.onopen = () => {
             status = "connected";
             console.log("WebSocket connection opened.");
             // Send the initial message to register the doctor session with the code
-            ws.send(
-                JSON.stringify({
-                    message_type: "doctor_session_init",
-                    code: code, // Send the generated code
-                }),
-            );
-            status = "waiting"; // Update status to waiting for patient
-            console.log(
-                "WebSocket connected, sent init message with code, waiting for patient.",
-            );
+            if (ws) {
+                ws.send(
+                    JSON.stringify({
+                        message_type: "doctor_session_init",
+                        code: code, // Send the generated code
+                    }),
+                );
+                status = "waiting"; // Update status to waiting for patient
+                console.log(
+                    "WebSocket connected, sent init message with code, waiting for patient.",
+                );
+            }
         };
 
         /** Handles incoming messages from the WebSocket server. */
@@ -78,20 +85,25 @@
                         "Patient connected, sending configuration data.",
                     );
                     // Send the configuration data (parsed earlier) to the server/patient
-                    ws.send(
-                        JSON.stringify({
-                            message_type: "doctor_session_response",
-                            data: configData, // Send the actual parsed configuration object
-                        }),
-                    );
-                    // Close the connection after successfully sending the data
-                    ws.close();
-                    status = "success"; // Update status to success
-                    console.log(
-                        "Configuration data sent successfully, closing connection.",
-                    );
+                    if (ws && configData) {
+                        ws.send(
+                            JSON.stringify({
+                                message_type: "doctor_session_response",
+                                data: configData, // Send the actual parsed configuration object
+                            }),
+                        );
+                        // Close the connection after successfully sending the data
+                        ws.close();
+                        status = "success"; // Update status to success
+                        console.log(
+                            "Configuration data sent successfully, closing connection.",
+                        );
+                    } else {
+                        throw new Error(
+                            "WebSocket or configData not available for sending response.",
+                        );
+                    }
                 } else {
-                    // Log if an unexpected message type is received
                     console.log(
                         "Received unexpected message type:",
                         data.message_type,
@@ -103,7 +115,8 @@
                     parseError,
                     event.data,
                 );
-                // Optionally set an error state here if needed
+                status = "error";
+                error = "Chyba při zpracování odpovědi serveru.";
             }
         };
 
@@ -113,13 +126,11 @@
                 `WebSocket connection closed. Code: ${event.code}, Reason: ${event.reason}, Clean: ${event.wasClean}`,
             );
             // Update status only if it wasn't already set to success, error, or no_config
-            // This prevents overriding the final status if the close happens after completion/error
             if (
                 status !== "success" &&
                 status !== "error" &&
                 status !== "no_config"
             ) {
-                // If closed unexpectedly while waiting or connecting
                 status = "error";
                 error = "Spojení bylo neočekávaně ukončeno.";
                 console.warn("WebSocket connection closed unexpectedly.");
@@ -128,13 +139,16 @@
                     "WebSocket connection closed normally after successful data transfer.",
                 );
             }
+            ws = null; // Clear the instance
         };
 
         /** Handles WebSocket connection errors. */
         ws.onerror = (event) => {
             status = "error";
-            error = "Chyba WebSocket spojení.";
+            error =
+                "Chyba WebSocket spojení. Zkontrolujte připojení k internetu.";
             console.error("WebSocket error:", event);
+            ws = null; // Clear the instance
         };
     }
 
@@ -142,23 +156,18 @@
 
     /** Runs when the component is first mounted to the DOM. */
     onMount(() => {
-        // Ensure code runs only in the browser
-        if (!browser) return;
+        if (!browser) return; // Ensure runs only in browser
 
-        // Retrieve the configuration JSON string from sessionStorage
         configJsonString = sessionStorage.getItem(SESSION_STORAGE_KEY);
 
         if (configJsonString) {
-            // IMPORTANT: Remove the item immediately after retrieving it
-            // to prevent it being reused on refresh or re-navigation.
+            // IMPORTANT: Remove item immediately after retrieving
             sessionStorage.removeItem(SESSION_STORAGE_KEY);
             console.log(
                 "Configuration loaded from sessionStorage and removed.",
             );
-            // Initialize the WebSocket connection now that config is loaded
             initializeWebSocket();
         } else {
-            // Handle the case where no configuration data is found
             status = "no_config";
             error =
                 "Konfigurační data nebyla nalezena. Vraťte se na předchozí stránku a vygenerujte je.";
@@ -170,10 +179,11 @@
 
     /** Runs when the component is about to be destroyed. */
     onDestroy(() => {
-        // Clean up the WebSocket connection if it's still open
+        // Clean up WebSocket connection
         if (ws && ws.readyState === WebSocket.OPEN) {
             console.log("Component destroying, closing WebSocket connection.");
             ws.close();
+            ws = null;
         }
     });
 
@@ -185,21 +195,21 @@
         if (browser) {
             configJsonString = sessionStorage.getItem(SESSION_STORAGE_KEY);
             if (configJsonString) {
-                // Found config, clear it and try initializing again
                 sessionStorage.removeItem(SESSION_STORAGE_KEY);
                 console.log(
                     "Retrying connection: Found config in sessionStorage.",
                 );
+                // Reset parsed data and re-initialize
+                configData = null;
                 initializeWebSocket();
             } else {
-                // Config is still missing, cannot retry meaningfully
+                // Config is still missing
                 status = "no_config";
                 error =
                     "Konfigurační data stále chybí. Nelze opakovat. Vraťte se na konfiguraci.";
                 console.warn("Retry failed: Configuration data still missing.");
             }
         } else {
-            // Cannot retry if not in browser context
             status = "error";
             error =
                 "Nelze opakovat spojení (prostředí prohlížeče není dostupné).";
@@ -207,228 +217,160 @@
     }
 </script>
 
-<div class="container">
-    {#if status === "initializing"}
-        <div class="status">Inicializace spojení...</div>
-        <svg
-            class="animate-spin h-8 w-8 text-blue-500 mt-4"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-        >
-            <circle
-                class="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                stroke-width="4"
-            ></circle>
-            <path
-                class="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-            ></path>
-        </svg>
-    {:else if status === "connected"}
-        <div class="status">Spojeno, příprava relace...</div>
-        <svg
-            class="animate-spin h-8 w-8 text-blue-500 mt-4"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-        >
-            <circle
-                class="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                stroke-width="4"
-            ></circle>
-            <path
-                class="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-            ></path>
-        </svg>
-    {:else if status === "waiting"}
-        <div class="code">{code}</div>
-        <div class="status">Čekání na připojení pacienta...</div>
-        <div class="instructions">
-            Prosím, sdělte pacientovi tento kód pro připojení k relaci.
-        </div>
-    {:else if status === "success"}
-        <div class="success">
+<div
+    class="flex min-h-screen flex-col items-center justify-center bg-gray-50 p-4 font-sans"
+>
+    <div
+        class="w-full max-w-lg rounded-lg border border-gray-200 bg-white p-6 text-center shadow-md md:p-8"
+    >
+        {#if status === "initializing"}
+            <h2 class="mb-4 text-lg font-medium text-gray-700">
+                Inicializace spojení...
+            </h2>
             <svg
+                class="mx-auto h-8 w-8 animate-spin text-blue-600"
                 xmlns="http://www.w3.org/2000/svg"
-                class="h-12 w-12 text-green-500 mx-auto mb-2"
                 fill="none"
                 viewBox="0 0 24 24"
-                stroke="currentColor"
-                stroke-width="2"
             >
+                <circle
+                    class="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    stroke-width="4"
+                ></circle>
                 <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
+                    class="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                ></path>
             </svg>
-            Konfigurace byla úspěšně odeslána! Spojení bylo ukončeno.
-        </div>
-        <a href="/monitoring-config" class="retry-button new-session-button"
-            >Nová relace</a
-        >
-    {:else if status === "error"}
-        <div class="error">
+        {:else if status === "connected"}
+            <h2 class="mb-4 text-lg font-medium text-gray-700">
+                Spojeno, příprava relace...
+            </h2>
             <svg
+                class="mx-auto h-8 w-8 animate-spin text-blue-600"
                 xmlns="http://www.w3.org/2000/svg"
-                class="h-12 w-12 text-red-500 mx-auto mb-2"
                 fill="none"
                 viewBox="0 0 24 24"
-                stroke="currentColor"
-                stroke-width="2"
             >
+                <circle
+                    class="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    stroke-width="4"
+                ></circle>
                 <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
+                    class="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                ></path>
             </svg>
-            {error}
-            <button on:click={retryConnection}>Zkusit znovu</button>
-        </div>
-    {:else if status === "no_config"}
-        <div class="error">
-            <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="h-12 w-12 text-yellow-500 mx-auto mb-2"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                stroke-width="2"
+        {:else if status === "waiting"}
+            <h2 class="mb-2 text-lg font-medium text-gray-700">
+                Čekání na připojení pacienta
+            </h2>
+            <p class="mb-6 text-sm text-gray-600">
+                Prosím, sdělte pacientovi tento kód pro připojení:
+            </p>
+            <div
+                class="inline-block rounded-lg border border-blue-200 bg-blue-50 px-6 py-4 shadow-sm"
             >
-                <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-                />
-            </svg>
-            {error}
-            <a href="/monitoring-config" class="retry-button"
+                <div
+                    class="text-4xl font-bold tracking-widest text-blue-700 sm:text-5xl"
+                >
+                    {code}
+                </div>
+            </div>
+            <p class="mt-6 text-xs text-gray-500">
+                Tato relace zůstane aktivní, dokud se pacient nepřipojí.
+            </p>
+        {:else if status === "success"}
+            <div
+                class="rounded-md border border-green-300 bg-green-100 p-4 text-center text-sm text-green-800"
+                role="status"
+            >
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="mx-auto mb-3 h-12 w-12 text-green-600"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    stroke-width="2"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                </svg>
+                <p class="font-medium">Konfigurace byla úspěšně odeslána!</p>
+                <p>Spojení bylo ukončeno.</p>
+            </div>
+            <a
+                href="/monitoring-config"
+                class="mt-4 inline-block rounded-md border border-transparent bg-green-600 py-2 px-5 text-sm font-medium text-white shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                >Nová relace</a
+            >
+        {:else if status === "error"}
+            <div
+                class="rounded-md border border-red-300 bg-red-100 p-4 text-center text-sm text-red-700"
+                role="alert"
+            >
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="mx-auto mb-3 h-12 w-12 text-red-600"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    stroke-width="2"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                </svg>
+                <p class="font-medium">Chyba spojení</p>
+                <p>{error}</p>
+            </div>
+            <button
+                on:click={retryConnection}
+                class="mt-4 inline-block rounded-md border border-transparent bg-red-600 py-2 px-5 text-sm font-medium text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                >Zkusit znovu</button
+            >
+        {:else if status === "no_config"}
+            <div
+                class="rounded-md border border-yellow-300 bg-yellow-100 p-4 text-center text-sm text-yellow-800"
+                role="alert"
+            >
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="mx-auto mb-3 h-12 w-12 text-yellow-500"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    stroke-width="2"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                    />
+                </svg>
+                <p class="font-medium">Chybí konfigurace</p>
+                <p>{error}</p>
+            </div>
+            <a
+                href="/monitoring-config"
+                class="mt-4 inline-block rounded-md border border-transparent bg-yellow-500 py-2 px-5 text-sm font-medium text-white shadow-sm hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2"
                 >Zpět na konfiguraci</a
             >
-        </div>
-    {/if}
+        {/if}
+    </div>
 </div>
-
-<style>
-    .container {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        min-height: 60vh; /* Adjusted height for better centering */
-        padding: 1rem;
-        text-align: center;
-        font-family:
-            system-ui,
-            -apple-system,
-            BlinkMacSystemFont,
-            "Segoe UI",
-            Roboto,
-            Oxygen,
-            Ubuntu,
-            Cantarell,
-            "Open Sans",
-            "Helvetica Neue",
-            sans-serif; /* System font stack */
-    }
-
-    .code {
-        font-size: clamp(2.5rem, 10vw, 4rem); /* Responsive font size */
-        font-weight: bold;
-        margin: 1.5rem 0;
-        letter-spacing: 0.5rem; /* Spacing between digits */
-        color: #333; /* Dark gray text */
-        background-color: #f0f0f0; /* Light gray background */
-        padding: 1rem 2rem;
-        border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
-        display: inline-block; /* Fit content width */
-    }
-
-    .status {
-        font-size: 1.2rem;
-        color: #666; /* Medium gray */
-        margin-top: 0.5rem;
-    }
-    .instructions {
-        font-size: 1rem;
-        color: #555; /* Slightly darker gray */
-        margin-top: 0.5rem;
-        max-width: 300px; /* Limit width for readability */
-    }
-
-    .success {
-        color: #27ae60; /* Slightly darker green */
-        font-size: 1.4rem;
-        font-weight: 500;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .error {
-        color: #c0392b; /* Slightly darker red */
-        font-size: 1.2rem;
-        text-align: center;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        max-width: 400px; /* Limit width */
-    }
-
-    /* Common styles for buttons and links styled as buttons */
-    button,
-    .retry-button {
-        margin-top: 1.5rem;
-        padding: 0.75rem 1.5rem;
-        background-color: #2980b9; /* Default blue */
-        color: white;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        font-size: 1rem;
-        font-weight: 500;
-        transition: background-color 0.2s ease;
-        text-decoration: none; /* Remove underline from links */
-        display: inline-block; /* Proper alignment */
-    }
-
-    button:hover,
-    .retry-button:hover {
-        background-color: #1f618d; /* Darker blue on hover */
-    }
-
-    /* Specific button colors */
-    .error button {
-        background-color: #e74c3c; /* Red for error retry */
-    }
-    .error button:hover {
-        background-color: #c0392b; /* Darker red on hover */
-    }
-    .error a.retry-button {
-        /* Style link like a button */
-        background-color: #f39c12; /* Orange for 'back' navigation */
-    }
-    .error a.retry-button:hover {
-        background-color: #e67e22; /* Darker orange on hover */
-    }
-    .success a.new-session-button {
-        background-color: #2ecc71; /* Green for new session */
-    }
-    .success a.new-session-button:hover {
-        background-color: #27ae60; /* Darker green */
-    }
-</style>

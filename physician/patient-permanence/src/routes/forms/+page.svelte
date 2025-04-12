@@ -41,7 +41,8 @@
                         <span class="text-sm text-gray-600">{form.description || "Bez popisu"}</span>
                     </a>
                     <a href="/form-edit/{form.id}" class="text-blue-600 hover:underline"> Edit </a>
-                </li>
+                <a href="/form-summary/{form.id}"> Summarize </a>
+            </li>
             {/each}
         </ul>
     </div>

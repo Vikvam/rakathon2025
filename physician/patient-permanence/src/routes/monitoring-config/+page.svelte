@@ -7,11 +7,11 @@
 
     // --- State Management (Svelte 5 Runes) ---
     let errorMessage = $state("");
-    let successMessage = $state("");
+    let successMessage = $state(""); // Kept for potential future use, but not set in current flow
     let isLoading = $state(true);
-    let isProcessing = $state(false); // Used for loading and generation
+    let isProcessing = $state(false); // Used for loading and the combined action
     let categoriesData = $state([]);
-    let generatedJsonOutput = $state(""); // State to hold the generated JSON string
+    let generatedJsonOutput = $state(""); // State to hold the generated JSON string internally
 
     // --- Constants ---
     const frequencyOptions = [
@@ -212,14 +212,14 @@
             id: categoryId,
             name: template.name || categoryId,
             description: template.description || "",
-            enabled: true, // Default to enabled
+            enabled: false, // Default to disabled (unchecked)
             defaultFreq: defaultCategoryFreq,
             defaultSchedules: template.defaultSchedules || [], // Keep original schedules if needed
             questions: (template.questions || []).map((q) => ({
                 key: q.key,
                 id: q.key, // Use key for Svelte #each
                 name: q.text,
-                enabled: true, // Default to enabled
+                enabled: false, // Default to disabled (unchecked)
                 frequency: mapScheduleIdToFrequency(
                     q.timeParameterization?.scheduleId,
                 ),
@@ -237,8 +237,16 @@
 
     /** Handles category enable/disable checkbox change. */
     function handleCategoryCheckboxChange(event, categoryIndex) {
-        categoriesData[categoryIndex].enabled = event.target.checked;
-        // Child question disabling is handled visually via CSS/Tailwind based on parent state
+        const isChecked = event.target.checked;
+        categoriesData[categoryIndex].enabled = isChecked;
+        // When enabling a category, also enable all its questions
+        if (isChecked) {
+            categoriesData[categoryIndex].questions.forEach(
+                (q) => (q.enabled = true),
+            );
+        }
+        // Note: When unchecking, questions remain enabled internally but are visually disabled by CSS.
+        // This preserves their state if the category is re-enabled.
     }
 
     /** Handles individual question enable/disable checkbox change. */
@@ -266,13 +274,12 @@
         });
     }
 
-    // --- JSON Generation Function ---
+    // --- JSON Generation Function (Internal) ---
     /** Generates the final JSON output based on the current UI state. */
-    function generateFormJson() {
-        isProcessing = true;
-        errorMessage = "";
-        successMessage = ""; // Clear previous success message
-        generatedJsonOutput = ""; // Clear previous output
+    function generateFormJsonInternal() {
+        // This function now primarily focuses on creating the JSON object
+        // Error handling and state updates are managed by the calling function.
+        generatedJsonOutput = ""; // Clear previous internal output
 
         const templateId = `FORM_CUSTOM_${Date.now()}`;
 
@@ -280,8 +287,8 @@
             templateId: templateId,
             name: "Vlastní Konfigurace", // Default name
             description: "Vygenerováno z konfiguračního nástroje", // Default description
-            // Include predefined default schedules (adjust if needed)
             defaultSchedules: [
+                // Standard schedules included in the template
                 {
                     scheduleId: "SCHED_DAILY_MORNING",
                     frequency: "daily",
@@ -310,16 +317,17 @@
             questions: [],
         };
 
+        let questionsAdded = false;
         // Iterate through UI state to build the questions array
         categoriesData.forEach((category) => {
             if (category.enabled) {
                 category.questions.forEach((question) => {
                     if (question.enabled) {
+                        questionsAdded = true;
                         const questionObject = {
                             key: question.key,
                             text: question.name,
                             dataType: question.dataType,
-                            // Conditionally include optional fields
                             ...(question.options && {
                                 options: question.options,
                             }),
@@ -332,12 +340,11 @@
                             ...(question.criticalValues && {
                                 criticalValues: question.criticalValues,
                             }),
-                            // Reconstruct timeParameterization
                             timeParameterization: {
                                 scheduleId: mapFrequencyToScheduleId(
                                     question.frequency,
                                 ),
-                                timestamp: null, // Templates usually have null timestamp
+                                timestamp: null,
                             },
                         };
                         formTemplate.questions.push(questionObject);
@@ -346,39 +353,74 @@
             }
         });
 
+        // Check if any questions were actually selected
+        if (!questionsAdded) {
+            errorMessage = "Nebyly vybrány žádné otázky pro dotazník.";
+            showFeedbackMessage(null, errorMessage); // Show error immediately
+            return false; // Indicate failure
+        }
+
         const finalJson = { formTemplate: formTemplate };
         const jsonString = JSON.stringify(finalJson, null, 2); // Pretty print
 
-        console.log("Generated Form JSON:", finalJson);
-        generatedJsonOutput = jsonString;
-        successMessage = "JSON úspěšně vygenerován a zobrazen níže.";
-        showFeedbackMessage(successMessage, null); // Show success feedback
-
-        isProcessing = false;
+        console.log("Generated Form JSON (Internal):", finalJson);
+        generatedJsonOutput = jsonString; // Store internally for sending
+        return true; // Indicate success
     }
 
-    // --- Navigation Function ---
+    // --- Navigation Function (Internal) ---
     /** Stores the generated JSON in sessionStorage and navigates. */
-    function sendConfiguration() {
-        if (!generatedJsonOutput) {
-            errorMessage = "Nejprve vygenerujte JSON konfiguraci.";
-            showFeedbackMessage(null, errorMessage);
-            return;
-        }
-        if (!browser) return; // Ensure runs only in browser
+    function sendConfigurationInternal() {
+        // Assumes generatedJsonOutput is already populated and valid
+        if (!browser) return false; // Ensure runs only in browser
 
         try {
-            JSON.parse(generatedJsonOutput); // Quick validation
+            // JSON.parse(generatedJsonOutput); // Validation already done implicitly by generation
             sessionStorage.setItem(SESSION_STORAGE_KEY, generatedJsonOutput);
             console.log(
                 "Configuration stored in sessionStorage, navigating...",
             );
             goto("/form-send"); // Navigate to the next step/page
+            return true; // Indicate success
         } catch (e) {
-            errorMessage = `Vygenerovaný JSON není platný: ${e.message}`;
+            errorMessage = `Chyba při ukládání nebo navigaci: ${e.message}`;
             showFeedbackMessage(null, errorMessage);
-            console.error("Error storing invalid JSON:", e);
+            console.error("Error storing/navigating:", e);
+            return false; // Indicate failure
         }
+    }
+
+    // --- Combined Action Handler ---
+    /** Generates the JSON and sends the configuration in one step. */
+    function createAndSendConfiguration() {
+        isProcessing = true;
+        errorMessage = "";
+        successMessage = ""; // Clear messages
+
+        // Step 1: Generate JSON internally
+        const generationSuccess = generateFormJsonInternal();
+
+        // Step 2: If generation succeeded, send the configuration
+        if (generationSuccess && generatedJsonOutput) {
+            const sendSuccess = sendConfigurationInternal();
+            // Navigation happens in sendConfigurationInternal if successful
+            if (!sendSuccess) {
+                // Error message is set within sendConfigurationInternal
+                isProcessing = false; // Stop processing on send error
+                return;
+            }
+            // If sendConfigurationInternal navigates, this part might not be reached/seen
+            // Success is implied by navigation.
+        } else {
+            // Error message is set within generateFormJsonInternal if failed
+            isProcessing = false; // Stop processing on generation error
+            return;
+        }
+
+        // Only set isProcessing to false if navigation didn't occur (e.g., error)
+        // If navigation occurs, the component might unmount anyway.
+        // Setting it here covers the error cases.
+        isProcessing = false;
     }
 
     // --- Feedback Message Helper ---
@@ -389,16 +431,15 @@
         errorMessage = errorMsg || "";
 
         // Optional: Auto-hide messages after a delay
-        const timeout = successMessage ? 5000 : 8000; // Longer for errors
-        setTimeout(() => {
-            // Clear the specific message that was shown
-            if (successMsg && successMessage === successMsg) {
-                successMessage = "";
-            }
-            if (errorMsg && errorMessage === errorMsg) {
-                errorMessage = "";
-            }
-        }, timeout);
+        // Only auto-hide errors now, success is implied by navigation
+        if (errorMessage) {
+            const timeout = 8000; // Longer for errors
+            setTimeout(() => {
+                if (errorMsg && errorMessage === errorMsg) {
+                    errorMessage = "";
+                }
+            }, timeout);
+        }
     }
 </script>
 
@@ -416,13 +457,13 @@
             <p class="text-center text-gray-500 my-8">Načítání kategorií...</p>
         {/if}
 
-        {#if errorMessage && !successMessage && !isLoading}
+        {#if errorMessage && isLoading}
             <div
-                id="errorMessageBox"
+                id="errorMessageBoxInitial"
                 class="mb-6 p-4 rounded-md text-sm bg-red-100 border border-red-300 text-red-700"
                 role="alert"
             >
-                <strong class="font-semibold">Chyba:</strong>
+                <strong class="font-semibold">Chyba při načítání:</strong>
                 {errorMessage}
             </div>
         {/if}
@@ -433,12 +474,12 @@
                     Načtené Kategorie a Otázky
                 </h2>
                 <p class="text-sm text-gray-600 mb-6 leading-relaxed">
-                    Zaškrtněte kategorie a otázky, které chcete zahrnout. U
-                    každé položky nebo celé kategorie můžete nastavit
-                    požadovanou frekvenci vyplňování.
+                    Zaškrtněte kategorie a otázky, které chcete zahrnout do
+                    dotazníku pro pacienta. U každé položky nebo celé kategorie
+                    můžete nastavit požadovanou frekvenci vyplňování.
                 </p>
 
-                {#if categoriesData.length === 0 && !errorMessage && !isLoading}
+                {#if categoriesData.length === 0 && !errorMessage}
                     <p
                         class="text-center text-gray-500 my-8 bg-gray-100 p-4 rounded-md"
                     >
@@ -450,7 +491,19 @@
                         {#each categoriesData as category, catIndex (category.id)}
                             <details
                                 class="block border border-gray-300 rounded-lg shadow-sm"
-                                bind:open={category.enabled}
+                                open={category.enabled}
+                                on:toggle={(e) => {
+                                    // Sync the enabled state if user manually toggles details
+                                    if (e.target.open !== category.enabled) {
+                                        category.enabled = e.target.open;
+                                        // Trigger the same logic as checkbox change for enabling questions
+                                        if (category.enabled) {
+                                            category.questions.forEach(
+                                                (q) => (q.enabled = true),
+                                            );
+                                        }
+                                    }
+                                }}
                             >
                                 <summary
                                     class="summary-element flex items-center justify-between p-4 cursor-pointer hover:bg-gray-100 rounded-t-lg pr-4"
@@ -612,72 +665,64 @@
                 {/if}
 
                 <div class="mt-8 pt-6 border-t border-gray-300 text-center">
-                    {#if successMessage}
-                        <div
-                            id="generationSuccessBox"
-                            class="mb-4 p-3 rounded-md text-sm bg-green-100 border border-green-300 text-green-800"
-                            role="status"
-                        >
-                            {successMessage}
-                        </div>
-                    {/if}
                     {#if errorMessage && !isLoading}
-                        {#if !errorMessage.includes("načítání") && !errorMessage.includes("čtení")}
-                            <div
-                                id="generationErrorBox"
-                                class="mb-4 p-3 rounded-md text-sm bg-red-100 border border-red-300 text-red-700"
-                                role="alert"
-                            >
-                                {errorMessage}
-                            </div>
-                        {/if}
+                        <div
+                            id="actionErrorBox"
+                            class="mb-4 p-3 rounded-md text-sm bg-red-100 border border-red-300 text-red-700"
+                            role="alert"
+                        >
+                            <strong class="font-semibold">Chyba:</strong>
+                            {errorMessage}
+                        </div>
                     {/if}
 
                     <button
                         type="button"
-                        on:click={generateFormJson}
+                        on:click={createAndSendConfiguration}
                         disabled={isProcessing || categoriesData.length === 0}
-                        class="inline-flex justify-center py-2 px-6 border border-transparent shadow-sm text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed mr-4"
+                        class="inline-flex justify-center py-2 px-6 border border-transparent shadow-sm text-base font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                        title={categoriesData.length === 0
+                            ? "Nejsou k dispozici žádné kategorie"
+                            : "Vytvořit a odeslat konfiguraci"}
                     >
                         {#if isProcessing}
-                            Generování...
+                            <svg
+                                class="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                            >
+                                <circle
+                                    class="opacity-25"
+                                    cx="12"
+                                    cy="12"
+                                    r="10"
+                                    stroke="currentColor"
+                                    stroke-width="4"
+                                ></circle>
+                                <path
+                                    class="opacity-75"
+                                    fill="currentColor"
+                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                ></path>
+                            </svg>
+                            Vytváření...
                         {:else}
-                            Vygenerovat JSON Formuláře
+                            Vytvořit dotazník pro pacienta
                         {/if}
                     </button>
-
-                    <button
-                        type="button"
-                        on:click={sendConfiguration}
-                        disabled={isProcessing || !generatedJsonOutput}
-                        class="inline-flex justify-center py-2 px-6 border border-transparent shadow-sm text-base font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-400"
-                        title={!generatedJsonOutput
-                            ? "Nejprve vygenerujte JSON"
-                            : "Odeslat konfiguraci"}
-                    >
-                        Odeslat Konfiguraci
-                    </button>
-
-                    {#if generatedJsonOutput}
-                        <div class="mt-6 text-left">
-                            <h3
-                                class="text-base font-semibold text-gray-700 mb-2"
-                            >
-                                Vygenerovaný JSON:
-                            </h3>
-                            <pre
-                                class="bg-gray-100 border border-gray-300 rounded-md p-4 text-xs text-gray-800 overflow-x-auto whitespace-pre-wrap break-words max-h-80">{generatedJsonOutput}</pre>
-                        </div>
-                    {/if}
                 </div>
             </div>
         {/if}
     </div>
 </div>
+```
 
 <style lang="postcss">
     @reference '../../app.css'; /* Adjust path if needed */
-    @reference tailwindcss;
+    @tailwind base;
+    @tailwind components;
+    @tailwind utilities;
 
     /* Custom styles for <details> and <summary> to enhance card appearance */
     .summary-element {
@@ -724,7 +769,7 @@
     }
 
     .details-content .freq-button-group {
-        width: 100%;
+        /* width: 100%; */ /* Removed to allow natural width */
         justify-content: flex-end;
     }
 
@@ -757,21 +802,17 @@
     .disabled-group,
     .disabled-row {
         opacity: 0.6;
-        pointer-events: none; /* Disable interactions within */
+        /* pointer-events: none; */ /* Let individual elements handle disabled state */
     }
-    .disabled-group *,
-    .disabled-row * {
-        pointer-events: none; /* Ensure child elements are also disabled */
-        cursor: not-allowed;
+    /* Style children of disabled rows/groups to look disabled */
+    .disabled-row label,
+    .disabled-row .freq-button:not(:disabled) {
+        /* Target non-disabled buttons within disabled row */
+        color: theme("colors.gray.400");
     }
-    /* Re-enable pointer events specifically for the buttons *inside* the summary's freq group,
-       so they can be disabled individually based on category.enabled */
-    .summary-element .freq-button-group button {
-        pointer-events: auto;
-    }
-    /* But keep them disabled if the whole group is marked as disabled */
-    .summary-element .disabled-group button {
-        pointer-events: none;
+    .disabled-row .freq-button:not(.selected):not(:disabled) {
+        background-color: theme("colors.gray.50");
+        border-color: theme("colors.gray.200");
     }
 
     /* Styling for checkboxes (using primary color) */
@@ -800,10 +841,10 @@
         }
     }
 
-    /* Style for the JSON output area */
-    pre {
-        tab-size: 2; /* Set tab width for formatting */
-        white-space: pre-wrap; /* Ensures wrapping */
-        word-break: break-all; /* Break long strings */
-    }
+    /* Style for the JSON output area - Removed as JSON is no longer displayed */
+    /* pre {
+		tab-size: 2;
+		white-space: pre-wrap;
+		word-break: break-all;
+	} */
 </style>

@@ -8,7 +8,7 @@ import {
   BaseDirectory,
 } from "@tauri-apps/plugin-fs";
 
-const FORM_SUBDIR = "form_definitions";
+const FORM_SUBDIR = "assignedForms";
 let isInitialized = false;
 
 /**

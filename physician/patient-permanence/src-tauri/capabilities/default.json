@@ -2,9 +2,7 @@
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
   "description": "Capability for the main window",
-  "windows": [
-    "main"
-  ],
+  "windows": ["main"],
   "permissions": [
     "core:default",
     "opener:default",
@@ -12,10 +10,10 @@
       "identifier": "fs:scope",
       "allow": [
         {
-          "path": "$APPLOCALDATA/form_definitions"
+          "path": "$APPLOCALDATA/assignedForms"
         },
         {
-          "path": "$APPLOCALDATA/form_definitions/*"
+          "path": "$APPLOCALDATA/assignedForms/*"
         }
       ]
     },

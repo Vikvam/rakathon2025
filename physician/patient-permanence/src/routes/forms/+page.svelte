@@ -45,7 +45,7 @@
     <ul>
         {#each forms as form (form.id)}
             <li>
-                <a href="/form-edit/{form.id}">
+                <a href="/patient-form/{form.id}">
                     {form.name} ({form.id})
                 </a>
             </li>

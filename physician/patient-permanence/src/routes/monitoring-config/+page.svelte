@@ -586,10 +586,8 @@
 </div>
 
 <style lang="postcss">
-    /* Base styles */
-    @tailwind base;
-    @tailwind components;
-    @tailwind utilities;
+    @reference "../../app.css"
+    @reference tailwindcss;
 
     details > summary {
         list-style: none;

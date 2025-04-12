@@ -25,7 +25,7 @@
     ],
     "questions": [
       {
-        "key": "skin_rash_itching_color_change",
+        "key": "kozni_vyrazka_svrbeni_zmena_barvy",
         "text": "Zaznamenal(a) jste vyrážku, svědění nebo změny barvy kůže?",
         "dataType": "single_choice",
         "options": [
@@ -41,7 +41,7 @@
         }
       },
       {
-        "key": "skin_hair_loss",
+        "key": "kozni_vypadavani_vlasu",
         "text": "Vypadávají Vám vlasy víc než obvykle?",
         "dataType": "single_choice",
         "options": [

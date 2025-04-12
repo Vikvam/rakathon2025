@@ -25,7 +25,7 @@
     ],
     "questions": [
       {
-        "key": "gi_diarrhea",
+        "key": "gastro_prujem",
         "text": "Máte průjem?",
         "dataType": "single_choice",
         "options": [
@@ -41,7 +41,7 @@
         }
       },
       {
-        "key": "gi_nausea_vomiting",
+        "key": "gastro_nevolnost_zvraceni",
         "text": "Máte nevolnost nebo zvracení?",
         "dataType": "single_choice",
         "options": [
@@ -57,7 +57,7 @@
         }
       },
       {
-        "key": "gi_abdominal_pain",
+        "key": "gastro_bolesti_bricha",
         "text": "Máte bolesti břicha?",
         "dataType": "single_choice",
         "options": [
@@ -73,7 +73,7 @@
         }
       },
       {
-        "key": "gi_blood_in_stool",
+        "key": "gastro_krev_ve_stolici",
         "text": "Máte krev ve stolici?",
         "dataType": "single_choice",
         "options": [

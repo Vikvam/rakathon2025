@@ -25,7 +25,7 @@
     ],
     "questions": [
       {
-        "key": "lung_cough",
+        "key": "plice_kasel",
         "text": "Máte kašel?",
         "dataType": "single_choice",
         "options": [
@@ -41,7 +41,7 @@
         }
       },
       {
-        "key": "lung_shortness_of_breath",
+        "key": "plice_dusnost",
         "text": "Máte dušnost?",
         "dataType": "single_choice",
         "options": [
@@ -57,7 +57,7 @@
         }
       },
       {
-        "key": "lung_chest_pressure",
+        "key": "plice_tlak_na_hrudniku",
         "text": "Máte tlak na hrudi?",
         "dataType": "single_choice",
         "options": [

@@ -25,7 +25,7 @@
     ],
     "questions": [
       {
-        "key": "endo_hot_flashes_chills_temp_fluctuations",
+        "key": "endokr_navaly_horka_zimnice_vykyvy_teploty",
         "text": "Máte návaly horka, zimnici nebo výkyvy tělesné teploty?",
         "dataType": "single_choice",
         "options": [
@@ -41,7 +41,7 @@
         }
       },
       {
-        "key": "endo_appetite_weight_change",
+        "key": "endokr_zmeny_chuti_k_jidlu_vahy",
         "text": "Změnila se Vaše chuť k jídlu nebo váha (výrazný úbytek nebo přírůstek)?",
         "dataType": "single_choice",
         "options": [
@@ -57,7 +57,7 @@
         }
       },
       {
-        "key": "endo_palpitations_tremor_restlessness",
+        "key": "endokr_buseni_srdce_tres_nepokoj",
         "text": "Máte bušení srdce, třes nebo pocit vnitřního neklidu?",
         "dataType": "single_choice",
         "options": [
@@ -73,7 +73,7 @@
         }
       },
       {
-        "key": "endo_constipation_cold_sensitivity_dry_skin",
+        "key": "endokr_zacpa_citlivost_na_chlad_sucha_kuze",
         "text": "Máte zácpu, citlivost na chlad nebo suchou kůži?",
         "dataType": "single_choice",
         "options": [

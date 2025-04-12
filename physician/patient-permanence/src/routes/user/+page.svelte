@@ -6,6 +6,7 @@
     // --- Svelte 5 State ---
     let config = $state({});         // Holds the loaded config object { user: '...' }
     let editedUsername = $state('');    // Bound to the input field
+    let editedEmail = $state('');    // Bound to the input field
     let isLoading = $state(true);       // For initial load indication
     let isSaving = $state(false);       // For save indication/disabling button
     let statusMessage = $state('');     // For success feedback
@@ -18,6 +19,7 @@
             .then((data) => {
                 config = data;
                 editedUsername = data.user;
+                editedEmail = data.email;
             })
             .catch((err) => {
                 console.error("Failed to load forms:", err);
@@ -36,7 +38,7 @@
         statusMessage = '';
         errorMessage = '';
 
-        const updatedConfig = { ...config, user: editedUsername };
+        const updatedConfig = { ...config, user: editedUsername, email: editedEmail };
 
         try {
             const success = await saveConfig(updatedConfig);
@@ -44,7 +46,7 @@
             if (success) {
                 // Update the main config state to match the saved data
                 config = updatedConfig;
-                statusMessage = "Username saved successfully!";
+                statusMessage = "Úspěšně uloženo!";
             } else {
                 // saveConfig returned false, likely due to FS error logged in the store
                 errorMessage = "Failed to save username. Please check logs and try again.";
@@ -64,18 +66,28 @@
 </svelte:head>
 
 <div class="settings-page-container">
-    <h1>Edit User Settings</h1>
-
     {#if isLoading}
         <p>Loading settings...</p>
     {:else}
         <form onsubmit={handleSave} class="settings-form">
             <div class="form-group">
-                <label for="username-input">Username:</label>
+                <label for="username-input">Jméno:</label>
                 <input
                         type="text"
                         id="username-input"
                         bind:value={editedUsername}
+                        disabled={isSaving}
+                        required
+                        aria-describedby="status-feedback"
+                />
+            </div>
+
+            <div class="form-group">
+                <label for="email-input">Email:</label>
+                <input
+                        type="text"
+                        id="email-input"
+                        bind:value={editedEmail}
                         disabled={isSaving}
                         required
                         aria-describedby="status-feedback"
@@ -91,9 +103,9 @@
 
             <button type="submit" disabled={isSaving || !editedUsername}>
                 {#if isSaving}
-                    Saving...
+                    Ukládám...
                 {:else}
-                    Save Username
+                    Uložit
                 {/if}
             </button>
         </form>

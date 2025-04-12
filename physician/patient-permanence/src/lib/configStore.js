@@ -18,6 +18,7 @@ const CONFIG_FILENAME = "user_config.json";
 // This is returned if the file doesn't exist or is corrupted.
 const DEFAULT_CONFIG = {
     user: "Unknown user",
+    email: "",
 };
 
 let isInitialized = false; // <-- Initialization flag

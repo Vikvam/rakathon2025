@@ -5,13 +5,9 @@ from logging import getLogger
 from fastapi import WebSocket, WebSocketDisconnect
 
 from app.errors import CodeNotFound
-from app.schemas import (
-    DoctorSessionInit,
-    DoctorSessionPatientConnected,
-    DoctorSessionResponse,
-)
+from app.schemas import DoctorSessionInit, DoctorSessionPatientConnected, DoctorSessionResponse
 
-logger = getLogger(__name__)
+logger = getLogger("uvicorn.error")
 
 
 @dataclass
@@ -41,6 +37,7 @@ class ConnectionManager:
 
             async for message in websocket.iter_text():
                 active_connection.future.set_result(DoctorSessionResponse.model_validate_json(message))
+                break
 
             logger.info(f"Closing connection for doctor with code {init_message.code}")
             clean_exit = True

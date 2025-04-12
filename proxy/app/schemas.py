@@ -22,6 +22,15 @@ class PatientSessionQuery(BaseModel):
     code: str
 
 
+class DoctorSessionPatientConnected(BaseModel):
+    message_type: Literal[MessageType.DOCTOR_SESSION_PATIENT_CONNECTED] = MessageType.DOCTOR_SESSION_PATIENT_CONNECTED
+
+
+class DoctorSessionResponse(BaseModel):
+    message_type: Literal[MessageType.DOCTOR_SESSION_RESPONSE] = MessageType.DOCTOR_SESSION_RESPONSE
+    data: dict  # TODO
+
+
 class PatientSessionResponse(BaseModel):
     message_type: Literal[MessageType.PATIENT_SESSION_RESPONSE] = MessageType.PATIENT_SESSION_RESPONSE
     data: dict  # TODO
@@ -31,12 +40,3 @@ class PatientSessionResponse(BaseModel):
         response: "DoctorSessionResponse",
     ) -> "PatientSessionResponse":
         return PatientSessionResponse(data=response.data)
-
-
-class DoctorSessionPatientConnected(BaseModel):
-    message_type: Literal[MessageType.DOCTOR_SESSION_PATIENT_CONNECTED] = MessageType.DOCTOR_SESSION_PATIENT_CONNECTED
-
-
-class DoctorSessionResponse(BaseModel):
-    message_type: Literal[MessageType.DOCTOR_SESSION_RESPONSE] = MessageType.DOCTOR_SESSION_RESPONSE
-    data: dict  # TODO

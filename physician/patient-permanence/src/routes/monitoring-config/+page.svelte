@@ -448,7 +448,7 @@
         {#if !isLoading}
             <div>
                 <h2 class="text-l font-semibold mb-3 text-gray-700 pt-4">
-                    Uživatel: {config.user}
+                    Název dotazníku: {config.user}
                 </h2>
                 <p class="text-sm text-gray-600 mb-6 leading-relaxed">
                     Zaškrtněte kategorie a otázky, které chcete zahrnout. U

@@ -19,6 +19,7 @@ const CONFIG_FILENAME = "user_config.json";
 const DEFAULT_CONFIG = {
     user: "Unknown user",
     email: "",
+    workspace: "",
 };
 
 let isInitialized = false; // <-- Initialization flag

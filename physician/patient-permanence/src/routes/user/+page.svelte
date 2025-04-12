@@ -7,6 +7,7 @@
     let config = $state({});         // Holds the loaded config object { user: '...' }
     let editedUsername = $state('');    // Bound to the input field
     let editedEmail = $state('');    // Bound to the input field
+    let editedWorspace = $state('');    // Bound to the input field
     let isLoading = $state(true);       // For initial load indication
     let isSaving = $state(false);       // For save indication/disabling button
     let statusMessage = $state('');     // For success feedback
@@ -20,6 +21,7 @@
                 config = data;
                 editedUsername = data.user;
                 editedEmail = data.email;
+                editedWorspace = data.workspace;
             })
             .catch((err) => {
                 console.error("Failed to load forms:", err);
@@ -38,7 +40,7 @@
         statusMessage = '';
         errorMessage = '';
 
-        const updatedConfig = { ...config, user: editedUsername, email: editedEmail };
+        const updatedConfig = { ...config, user: editedUsername, email: editedEmail, workspace: editedWorspace };
 
         try {
             const success = await saveConfig(updatedConfig);
@@ -83,13 +85,23 @@
             </div>
 
             <div class="form-group">
+                <label for="email-input">Pracoviště:</label>
+                <input
+                        type="text"
+                        id="email-input"
+                        bind:value={editedWorspace}
+                        disabled={isSaving}
+                        aria-describedby="status-feedback"
+                />
+            </div>
+
+            <div class="form-group">
                 <label for="email-input">Email:</label>
                 <input
                         type="text"
                         id="email-input"
                         bind:value={editedEmail}
                         disabled={isSaving}
-                        required
                         aria-describedby="status-feedback"
                 />
             </div>

@@ -2,6 +2,8 @@
     import { browser } from "$app/environment";
     import { onDestroy, onMount } from "svelte"; // Import onMount if needed, onDestroy for cleanup
     import { formSaveAnswers, getForm } from "$lib/formStore"; // Assuming this utility exists
+    import { getConfig } from "$lib/configStore.js";
+
     import { goto } from "$app/navigation";
     import { getFormOverallStatus, exportFormSummary } from "$lib/exportForm";
 
@@ -9,6 +11,7 @@
     let { data } = $props(); // Passed from +page.ts load function
 
     // --- Component State ---
+    let config = $state({});         // Holds the loaded config object { user: '...' }
     let formData = $state<any>(null); // Parsed form structure { name, description, questions, ... }
     let currentQuestionIndex = $state(0);
     let answers = $state<Record<string, any>>({}); // Store answers keyed by question.key
@@ -57,6 +60,16 @@
 
         // Use a minimal timeout to ensure UI updates before potentially heavy parsing
         const timer = setTimeout(() => {
+            getConfig()
+                .then((data) => {
+                    config = data;
+                })
+                .catch((err) => {
+                    console.error("Failed to load forms:", err);
+                })
+                .finally(() => {
+                    isLoading = false;
+                });
             try {
                 if (!data.formJsonString) {
                     throw new Error("Formulář nebyl nalezen nebo je prázdný.");
@@ -200,7 +213,7 @@
                 isAnyAnswerProblematic = isProblematic;
                 isAnyAnswerCritical = isCritical;
 
-                emailContent = exportFormSummary(form);
+                emailContent = `${exportFormSummary(form)}`;
             }
 
             submissionMessage = "Formulář byl úspěšně uložen";
@@ -656,7 +669,7 @@
                 {#if isAnyAnswerCritical}
                     <p>Tyto informace vašeho lékaře zajímají. Prosím, odešlete mu e-mail.</p>
                     <a
-                        href="mailto:info@example.com?subject=Formulář ${formData.name} byl odeslán&body=${emailContent}"
+                        href="mailto:{config.email}?subject=Výpis z aplikace, {config.user}&body=${emailContent}"
                         target="_blank"
                         class="mt-6 inline-block rounded-md bg-yellow-600 py-2 px-5 font-semibold text-white hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2"
                     >

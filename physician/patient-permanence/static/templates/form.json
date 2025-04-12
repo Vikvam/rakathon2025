@@ -7,6 +7,7 @@
       {
         "scheduleId": "SCHED_DAILY_MORNING",
         "frequency": "daily",
+        "dayOfWeek": null,
         "timeOfDay": "09:00"
       },
       {

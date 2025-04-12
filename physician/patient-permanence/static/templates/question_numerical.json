@@ -15,11 +15,13 @@
   "criticalValues": {
     "deviation": {
       "increasePercent": 15,
-      "decreasePercent": 10
+      "decreasePercent": 10,
+      "repetitions": 3
     },
     "range": {
       "min": 0,
-      "max": 100
+      "max": 100,
+      "repetitions": 3
     }
   },
   "timeParameterization": {

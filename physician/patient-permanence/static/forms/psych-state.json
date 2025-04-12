@@ -1,0 +1,117 @@
+{
+  "formTemplate": {
+    "templateId": "FORM_PSYCHO_STATE_01",
+    "name": "Psychologický stav",
+    "description": "Dotazník pro sledování nálady a psychické pohody.",
+    "defaultSchedules": [
+      {
+        "scheduleId": "SCHED_DAILY_0900",
+        "frequency": "daily",
+        "dayOfWeek": null,
+        "timeOfDay": "09:00"
+      },
+      {
+        "scheduleId": "SCHED_WEEKLY_MON_1000",
+        "frequency": "weekly",
+        "dayOfWeek": "Monday",
+        "timeOfDay": "10:00"
+      },
+      {
+        "scheduleId": "SCHED_BIWEEKLY_MON_1000",
+        "frequency": "biweekly",
+        "dayOfWeek": "Monday",
+        "timeOfDay": "10:00"
+      }
+    ],
+    "questions": [
+      {
+        "key": "psy_mood_rating",
+        "text": "Jak byste ohodnotil/a svou celkovou náladu dnes na škále 0 (velmi špatná) až 10 (vynikající)?",
+        "dataType": "numerical",
+        "problematicValues": {
+          "deviation": {
+            "increasePercent": null, // Added null as per template
+            "decreasePercent": 25
+          },
+          "range": {
+            "min": 0,
+            "max": 4
+            // repetitions not in template for problematic range
+          }
+        },
+        "criticalValues": {
+          "deviation": {
+            "increasePercent": null, // Added null as per template
+            "decreasePercent": 40,
+            "repetitions": 3
+          },
+          "range": {
+            "min": 0,
+            "max": 2,
+            "repetitions": 2 // Adjusted: template has reps here
+          }
+        },
+        "timeParameterization": {
+          "scheduleId": "SCHED_DAILY_0900",
+          "timestamp": null
+        }
+      },
+      {
+        "key": "psy_anxiety_rating",
+        "text": "Jak byste ohodnotil/a svou úroveň úzkosti nebo nervozity dnes na škále 0 (žádná) až 10 (extrémní)?",
+        "dataType": "numerical",
+        "problematicValues": {
+          "deviation": {
+            "increasePercent": 30,
+            "decreasePercent": null
+          },
+          "range": {
+            "min": 6,
+            "max": 10,
+            "repetitions": null
+          }
+        },
+        "criticalValues": {
+          "deviation": {
+            "increasePercent": 50,
+            "decreasePercent": null,
+            "repetitions": 3
+          },
+          "range": {
+            "min": 8,
+            "max": 10,
+            "repetitions": 2
+          }
+        },
+        "timeParameterization": {
+          "scheduleId": "SCHED_DAILY_0900",
+          "timestamp": null
+        }
+      },
+      {
+        "key": "psy_anhedonia",
+        "text": "Za posledních 7 dní, jak často Vás trápila malá nebo žádná radost z věcí, které Vás dříve těšily?",
+        "dataType": "single_choice",
+        "options": [
+          { "value": "anh_not_at_all", "text": "Vůbec ne (0 dní)" },
+          { "value": "anh_several_days", "text": "Několik dní (1-2 dny)" },
+          {
+            "value": "anh_more_than_half",
+            "text": "Více než polovinu dní (3-4 dny)"
+          },
+          {
+            "value": "anh_nearly_every_day",
+            "text": "Téměř každý den (5-7 dní)"
+          }
+        ],
+        "defaultValue": "anh_not_at_all",
+        "problematicValues": ["anh_more_than_half"],
+        "criticalValues": ["anh_nearly_every_day"],
+        "timeParameterization": {
+          "scheduleId": "SCHED_WEEKLY_MON_1000",
+          "timestamp": null
+        }
+      }
+    ]
+  }
+}

@@ -1,10 +1,20 @@
 from fastapi import FastAPI, Request, WebSocket
+from fastapi.middleware.cors import CORSMiddleware
 
 from app.manager import ConnectionManager
 from app.schemas import PatientSessionQuery, PatientSessionResponse
 
 app = FastAPI()
 manager = ConnectionManager()
+
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allows all origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows all methods
+    allow_headers=["*"],  # Allows all headers
+)
 
 
 @app.post("/patient")

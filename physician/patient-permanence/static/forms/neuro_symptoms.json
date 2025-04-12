@@ -25,7 +25,7 @@
     ],
     "questions": [
       {
-        "key": "neuro_headache",
+        "key": "neuro_bolest_hlavy",
         "text": "Máte bolesti hlavy?",
         "dataType": "single_choice",
         "options": [
@@ -41,7 +41,7 @@
         }
       },
       {
-        "key": "neuro_dizziness",
+        "key": "neuro_zavrate",
         "text": "Máte závratě?",
         "dataType": "single_choice",
         "options": [
@@ -57,7 +57,7 @@
         }
       },
       {
-        "key": "neuro_balance_issues",
+        "key": "neuro_problemy_s_rovnovahou",
         "text": "Máte problémy s rovnováhou?",
         "dataType": "single_choice",
         "options": [
@@ -73,7 +73,7 @@
         }
       },
       {
-        "key": "neuro_mood_memory_behavior_changes",
+        "key": "neuro_zmeny_nalady_pameti_chovani",
         "text": "Zaznamenal(a) jste změny v náladě, paměti nebo chování?",
         "dataType": "single_choice",
         "options": [
@@ -89,7 +89,7 @@
         }
       },
       {
-        "key": "neuro_limb_weakness_tingling",
+        "key": "neuro_slabost_brneni_koncetin",
         "text": "Cítíte slabost nebo brnění v končetinách?",
         "dataType": "single_choice",
         "options": [

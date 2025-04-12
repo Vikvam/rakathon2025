@@ -25,7 +25,7 @@
     ],
     "questions": [
       {
-        "key": "pain_level_average",
+        "key": "uroven_bolesti_prumerna",
         "text": "Jaká byla Vaše PRŮMĚRNÁ úroveň bolesti za posledních 24 hodin na škále 0 (žádná bolest) až 10 (nejhorší možná bolest)?",
         "dataType": "numerical",
         "problematicValues": {
@@ -58,7 +58,7 @@
         }
       },
       {
-        "key": "pain_level_worst",
+        "key": "uroven_bolesti_nejhorsi",
         "text": "Jaká byla Vaše NEJHORŠÍ úroveň bolesti za posledních 24 hodin na škále 0 (žádná bolest) až 10 (nejhorší možná bolest)?",
         "dataType": "numerical",
         "problematicValues": {
@@ -91,7 +91,7 @@
         }
       },
       {
-        "key": "pain_interference_activity",
+        "key": "bolest_omezujici_aktivity",
         "text": "Do jaké míry bolest za posledních 24 hodin omezovala Vaše běžné denní aktivity?",
         "dataType": "single_choice",
         "options": [

@@ -1,0 +1,21 @@
+{
+  "formTemplate": {
+    "templateId": "UNIQUE_FORM_TEMPLATE_ID",
+    "name": "Název formuláře (šablony)",
+    "description": "Popis účelu formuláře.",
+    "defaultSchedules": [
+      {
+        "scheduleId": "SCHED_DAILY_MORNING",
+        "frequency": "daily",
+        "timeOfDay": "09:00"
+      },
+      {
+        "scheduleId": "SCHED_WEEKLY_MONDAY",
+        "frequency": "weekly",
+        "dayOfWeek": "Monday",
+        "timeOfDay": "10:00"
+      }
+    ],
+    "questions": []
+  }
+}

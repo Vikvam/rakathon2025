@@ -1,0 +1,29 @@
+{
+  "key": "nazev_pro_lekare_1",
+  "text": "Text otázky pro pacienta č. 1 (např. 'Jak se dnes cítíte?')",
+  "dataType": "numerical",
+  "problematicValues": {
+    "deviation": {
+      "increasePercent": 5,
+      "decreasePercent": 5
+    },
+    "range": {
+      "min": 0,
+      "max": 100
+    }
+  },
+  "criticalValues": {
+    "deviation": {
+      "increasePercent": 15,
+      "decreasePercent": 10
+    },
+    "range": {
+      "min": 0,
+      "max": 100
+    }
+  },
+  "timeParameterization": {
+    "scheduleId": "SCHED_DAILY_MORNING",
+    "timestamp": null
+  }
+}

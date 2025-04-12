@@ -1,0 +1,17 @@
+{
+  "key": "nazev_pro_lekare_2",
+  "text": "Text otázky pro pacienta č. 2 (např. 'Máte dnes bolesti?')",
+  "dataType": "single_choice",
+  "options": [
+    { "value": "opt_1", "text": "Možnost A" },
+    { "value": "opt_2", "text": "Možnost B" },
+    { "value": "opt_3", "text": "Možnost C" }
+  ],
+  "defaultValue": "opt_2",
+  "problematicValues": ["opt_1"],
+  "criticalValues": ["opt_3"],
+  "timeParameterization": {
+    "scheduleId": "SCHED_DAILY_MORNING",
+    "timestamp": null
+  }
+}

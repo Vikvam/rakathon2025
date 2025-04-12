@@ -1,0 +1,34 @@
+{
+  "formTemplate": {
+    "templateId": "UNIQUE_FORM_TEMPLATE_ID",
+    "name": "Název formuláře (šablony)",
+    "description": "Popis účelu formuláře.",
+    "defaultSchedules": [
+      {
+        "scheduleId": "SCHED_DAILY_MORNING",
+        "frequency": "daily",
+        "dayOfWeek": null,
+        "timeOfDay": "09:00"
+      },
+      {
+        "scheduleId": "SCHED_WEEKLY_MONDAY",
+        "frequency": "weekly",
+        "dayOfWeek": "Monday",
+        "timeOfDay": "10:00"
+      },
+      {
+        "scheduleId": "SCHED_BIWEEKLY_MONDAY",
+        "frequency": "biweekly",
+        "dayOfWeek": "Tuesday",
+        "timeOfDay": "11:00"
+      },
+      {
+        "scheduleId": "SCHED_MONTHLY",
+        "frequency": "monthly",
+        "dayOfMonth": 13,
+        "timeOfDay": "14:00"
+      }
+    ],
+    "questions": []
+  }
+}

@@ -1,0 +1,81 @@
+{
+  "formTemplate": {
+    "templateId": "FORM_MEDICATION_ADHERENCE",
+    "name": "Adherence užití léčiv",
+    "description": "Dotazník pro sledování pravidelnosti užívání předepsaných léků.",
+    "defaultSchedules": [
+      {
+        "scheduleId": "SCHED_DAILY_0900",
+        "frequency": "daily",
+        "dayOfWeek": null,
+        "timeOfDay": "09:00"
+      },
+      {
+        "scheduleId": "SCHED_WEEKLY_MON_1000",
+        "frequency": "weekly",
+        "dayOfWeek": "Monday",
+        "timeOfDay": "10:00"
+      },
+      {
+        "scheduleId": "SCHED_BIWEEKLY_MON_1000",
+        "frequency": "biweekly",
+        "dayOfWeek": "Monday",
+        "timeOfDay": "10:00"
+      }
+    ],
+    "questions": [
+      {
+        "key": "adherence_taken_yesterday",
+        "text": "Vzal/a jste si včera všechny předepsané léky podle plánu?",
+        "dataType": "single_choice",
+        "options": [
+          { "value": "ad_yes_all", "text": "Ano, všechny" },
+          { "value": "ad_yes_most", "text": "Ano, většinu" },
+          { "value": "ad_some", "text": "Jen některé" },
+          { "value": "ad_none", "text": "Žádné" }
+        ],
+        "defaultValue": "ad_yes_all",
+        "problematicValues": ["ad_yes_most"],
+        "criticalValues": ["ad_some", "ad_none"],
+        "timeParameterization": {
+          "scheduleId": "SCHED_DAILY_0900",
+          "timestamp": null
+        }
+      },
+      {
+        "key": "adherence_reason_missed",
+        "text": "Pokud jste včera vynechal/a nějaké léky, jaký byl hlavní důvod? (Pokud jste žádné nevynechal/a, zvolte poslední možnost)",
+        "dataType": "single_choice",
+        "options": [
+          { "value": "ar_forgot", "text": "Zapomněl/a jsem" },
+          { "value": "ar_side_effects", "text": "Kvůli vedlejším účinkům" },
+          {
+            "value": "ar_unavailable",
+            "text": "Neměl/a jsem je u sebe"
+          },
+          {
+            "value": "ar_felt_better",
+            "text": "Cítil/a jsem se lépe, myslel/a jsem, že je nepotřebuji"
+          },
+          { "value": "ar_felt_worse", "text": "Cítil/a jsem se po nich hůře" },
+          { "value": "ar_complicated", "text": "Dávkování je příliš složité" },
+          { "value": "ar_other", "text": "Jiný důvod" },
+          { "value": "ar_did_not_miss", "text": "Nevynechal/a jsem žádné léky" }
+        ],
+        "defaultValue": "ar_did_not_miss",
+        "problematicValues": ["ar_forgot", "ar_unavailable"],
+        "criticalValues": [
+          "ar_side_effects",
+          "ar_felt_better",
+          "ar_complicated",
+          "ar_other",
+          "ar_felt_worse"
+        ],
+        "timeParameterization": {
+          "scheduleId": "SCHED_DAILY_0900",
+          "timestamp": null
+        }
+      }
+    ]
+  }
+}

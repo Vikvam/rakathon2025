@@ -1,0 +1,114 @@
+{
+  "formTemplate": {
+    "templateId": "FORM_PAIN_MONITOR_01",
+    "name": "Bolesti",
+    "description": "Dotazník pro sledování úrovně a charakteru bolesti.",
+    "defaultSchedules": [
+      {
+        "scheduleId": "SCHED_DAILY_0900",
+        "frequency": "daily",
+        "dayOfWeek": null,
+        "timeOfDay": "09:00"
+      },
+      {
+        "scheduleId": "SCHED_WEEKLY_MON_1000",
+        "frequency": "weekly",
+        "dayOfWeek": "Monday",
+        "timeOfDay": "10:00"
+      },
+      {
+        "scheduleId": "SCHED_BIWEEKLY_MON_1000",
+        "frequency": "biweekly",
+        "dayOfWeek": "Monday",
+        "timeOfDay": "10:00"
+      }
+    ],
+    "questions": [
+      {
+        "key": "pain_level_average",
+        "text": "Jaká byla Vaše PRŮMĚRNÁ úroveň bolesti za posledních 24 hodin na škále 0 (žádná bolest) až 10 (nejhorší možná bolest)?",
+        "dataType": "numerical",
+        "problematicValues": {
+          "deviation": {
+            "increasePercent": 30,
+            "decreasePercent": null,
+            "repetitions": null
+          },
+          "range": {
+            "min": 5,
+            "max": 10,
+            "repetitions": null
+          }
+        },
+        "criticalValues": {
+          "deviation": {
+            "increasePercent": 50,
+            "decreasePercent": null,
+            "repetitions": 3
+          },
+          "range": {
+            "min": 7,
+            "max": 10,
+            "repetitions": 2
+          }
+        },
+        "timeParameterization": {
+          "scheduleId": "SCHED_DAILY_0900",
+          "timestamp": null
+        }
+      },
+      {
+        "key": "pain_level_worst",
+        "text": "Jaká byla Vaše NEJHORŠÍ úroveň bolesti za posledních 24 hodin na škále 0 (žádná bolest) až 10 (nejhorší možná bolest)?",
+        "dataType": "numerical",
+        "problematicValues": {
+          "deviation": {
+            "increasePercent": null,
+            "decreasePercent": null,
+            "repetitions": 3
+          },
+          "range": {
+            "min": 6,
+            "max": 10,
+            "repetitions": null
+          }
+        },
+        "criticalValues": {
+          "deviation": {
+            "increasePercent": null,
+            "decreasePercent": null,
+            "repetitions": null
+          },
+          "range": {
+            "min": 8,
+            "max": 10,
+            "repetitions": 2
+          }
+        },
+        "timeParameterization": {
+          "scheduleId": "SCHED_DAILY_0900",
+          "timestamp": null
+        }
+      },
+      {
+        "key": "pain_interference_activity",
+        "text": "Do jaké míry bolest za posledních 24 hodin omezovala Vaše běžné denní aktivity?",
+        "dataType": "single_choice",
+        "options": [
+          { "value": "pi_none", "text": "Vůbec neomezovala" },
+          { "value": "pi_slightly", "text": "Trochu omezovala" },
+          { "value": "pi_moderately", "text": "Středně omezovala" },
+          { "value": "pi_quite_a_bit", "text": "Značně omezovala" },
+          { "value": "pi_completely", "text": "Úplně znemožnila aktivity" }
+        ],
+        "defaultValue": "pi_none",
+        "problematicValues": ["pi_moderately"],
+        "criticalValues": ["pi_quite_a_bit", "pi_completely"],
+        "timeParameterization": {
+          "scheduleId": "SCHED_DAILY_0900",
+          "timestamp": null
+        }
+      }
+    ]
+  }
+}

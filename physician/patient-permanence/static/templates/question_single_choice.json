@@ -3,9 +3,9 @@
   "text": "Text otázky pro pacienta č. 2 (např. 'Máte dnes bolesti?')",
   "dataType": "single_choice",
   "options": [
-    { "value": "opt_1", "text": "Možnost A" },
-    { "value": "opt_2", "text": "Možnost B" },
-    { "value": "opt_3", "text": "Možnost C" }
+    { "value": "opt_1", "text": "Spíše ano" },
+    { "value": "opt_2", "text": "Nevím" },
+    { "value": "opt_3", "text": "Spíše ne" }
   ],
   "defaultValue": "opt_2",
   "problematicValues": ["opt_1"],

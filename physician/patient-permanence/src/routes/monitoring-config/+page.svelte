@@ -3,7 +3,8 @@
     import { readDir, readTextFile } from "@tauri-apps/plugin-fs"; // Assuming Tauri might be used
     import { resolveResource } from "@tauri-apps/api/path"; // Assuming Tauri might be used
     import { goto } from "$app/navigation";
-    import { browser } from "$app/environment"; // Import browser check
+    import { browser } from "$app/environment";
+    import {getConfig} from "$lib/configStore.js"; // Import browser check
 
     // --- State Management (Svelte 5 Runes) ---
     let errorMessage = $state("");
@@ -12,6 +13,8 @@
     let isProcessing = $state(false); // Used for loading and generation
     let categoriesData = $state([]);
     let generatedJsonOutput = $state(""); // State to hold the generated JSON string
+
+    let config = $state({});
 
     // --- Constants ---
     const frequencyOptions = [
@@ -156,6 +159,21 @@
         } finally {
             isLoading = false;
         }
+    });
+
+    // TODO: maybe race condition?
+    $effect(() => {
+        isLoading = true;
+        getConfig()
+            .then((data) => {
+                config = data;
+            })
+            .catch((err) => {
+                console.error("Failed to load forms:", err);
+            })
+            .finally(() => {
+                isLoading = false;
+            });
     });
 
     // --- Helper Functions ---
@@ -429,8 +447,8 @@
 
         {#if !isLoading}
             <div>
-                <h2 class="text-xl font-semibold mb-3 text-gray-700 pt-4">
-                    Načtené Kategorie a Otázky
+                <h2 class="text-l font-semibold mb-3 text-gray-700 pt-4">
+                    Uživatel: {config.user}
                 </h2>
                 <p class="text-sm text-gray-600 mb-6 leading-relaxed">
                     Zaškrtněte kategorie a otázky, které chcete zahrnout. U

@@ -244,9 +244,7 @@ export async function formSaveAnswers(formId, answers) {
     new_form.formTemplate.questions.push(new_question);
   }
 
-  await saveForm(formId, JSON.stringify(new_form));
-
-  return true;
+  return await saveForm(formId, JSON.stringify(new_form));
 }
 
 /**

@@ -15,6 +15,7 @@
     let generatedJsonOutput = $state(""); // State to hold the generated JSON string
 
     let formName = $state("");
+    let formDescription = $state("Dotazník o zdravotním stavu mezi návštěvami abulance");
 
     // --- Constants ---
     const frequencyOptions = [
@@ -297,7 +298,7 @@
         const formTemplate = {
             templateId: templateId,
             name: formName, // Default name
-            description: "Vygenerováno z konfiguračního nástroje", // Default description
+            description: formDescription, // Default description
             // Include predefined default schedules (adjust if needed)
             defaultSchedules: [
                 {
@@ -447,9 +448,19 @@
 
         {#if !isLoading}
             <div>
-                <h2 class="text-l font-semibold mb-3 text-gray-700 pt-4">
-                    Název dotazníku: {formName}
-                </h2>
+                <p class="text-l mb-1text-gray-700 pt-4">
+                    <span class="font-semibold mr-1">Název dotazníku:</span> {formName}
+                </p>
+                <div class="flex text-l text-m mb-1">
+                    <label class="font-semibold mr-24" for="username-input">Popis:</label>
+                    <input
+                            type="text"
+                            class="flex-1"
+                            bind:value={formDescription}
+                            required
+                            aria-describedby="status-feedback"
+                    />
+                </div>
                 <p class="text-sm text-gray-600 mb-6 leading-relaxed">
                     Zaškrtněte kategorie a otázky, které chcete zahrnout. U
                     každé položky nebo celé kategorie můžete nastavit

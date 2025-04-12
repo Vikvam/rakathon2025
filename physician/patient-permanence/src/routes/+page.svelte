@@ -140,7 +140,7 @@
     #greet-input {
         margin-right: 5px;
     }
-
+    /*
     @media (prefers-color-scheme: dark) {
         :root {
             color: #f6f6f6;
@@ -159,5 +159,5 @@
         button:active {
             background-color: #0f0f0f69;
         }
-    }
+    } */
 </style>

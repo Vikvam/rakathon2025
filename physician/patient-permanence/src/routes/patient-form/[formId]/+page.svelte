@@ -1,6 +1,7 @@
 <script>
     import { browser } from "$app/environment";
     import { onDestroy } from "svelte"; // Import onDestroy for potential cleanup
+    import { formSaveAnswers } from "$lib/formStore";
 
     // --- Component Props (Svelte 5) ---
     // Use $props() to get the props passed from the load function.
@@ -211,6 +212,8 @@
             // --- Placeholder for actual submission logic ---
             // Example: await invoke('submit_patient_form', { formData: submissionData });
             // ----------------------------------------------
+
+            await formSaveAnswers(data.formId, submissionData.answers);
 
             submissionMessage = "Formulář byl úspěšně odeslán!";
             submissionSuccess = true;

@@ -2,7 +2,8 @@
     import { browser } from "$app/environment";
     import { onDestroy, onMount } from "svelte"; // Import onMount if needed, onDestroy for cleanup
     import { formSaveAnswers } from "$lib/formStore"; // Assuming this utility exists
-
+    import { goto } from "$app/navigation";
+    
     // --- Component Props (Svelte 5) ---
     let { data } = $props(); // Passed from +page.ts load function
 
@@ -259,6 +260,17 @@
         "font-semibold py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 transition duration-150 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center justify-center text-sm sm:text-base";
 </script>
 
+<button
+    on:click={() => goto('/forms')}
+    class="absolute top-4 left-4 inline-flex items-center rounded-md px-3 py-2 text-gray-700 hover:bg-gray-100 hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+    aria-label="Zpět"
+>
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+    </svg>
+    <span class="ml-1">Zpět</span>
+</button>
+
 <div class="min-h-screen bg-gray-50 p-4 font-sans">
     <div
         class="mx-auto my-4 w-full max-w-lg rounded-lg border border-gray-200 bg-white p-5 shadow-lg sm:p-6 md:p-8"
@@ -312,7 +324,7 @@
                 </p>
                 <p class="text-red-600">{loadError}</p>
                 <a
-                    href="/"
+                    href="/forms"
                     class="mt-4 inline-block text-sm font-medium text-blue-600 hover:underline"
                     >Zpět na domovskou stránku</a
                 >
@@ -627,7 +639,7 @@
                     {submissionMessage}
                 </p>
                 <a
-                    href="/"
+                    href="/forms"
                     class="mt-6 inline-block rounded-md bg-blue-600 py-2 px-5 font-semibold text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                 >
                     Zpět na domovskou stránku

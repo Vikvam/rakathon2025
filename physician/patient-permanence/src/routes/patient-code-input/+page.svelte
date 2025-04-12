@@ -88,6 +88,17 @@
     }
 </script>
 
+<button
+    on:click={() => goto('/forms')}
+    class="absolute top-4 left-4 inline-flex items-center rounded-md px-3 py-2 text-gray-700 hover:bg-gray-100 hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+    aria-label="Zpět"
+>
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+    </svg>
+    <span class="ml-1">Zpět</span>
+</button>
+
 <div
     class="flex min-h-screen flex-col items-center justify-center bg-gray-50 p-4 font-sans"
 >
@@ -95,7 +106,7 @@
         class="w-full max-w-md rounded-lg border border-gray-200 bg-white p-6 shadow-md md:p-8"
     >
         <h1 class="mb-6 text-center text-2xl font-bold text-gray-800">
-            Připojit se k lékaři
+            Stáhnout dotazníky od lékaře
         </h1>
 
         <div class="mb-4">
@@ -163,7 +174,7 @@
                 class="mt-4 rounded-md border border-green-300 bg-green-100 p-3 text-center text-sm text-green-800"
                 role="status"
             >
-                Připojení úspěšné! Přesměrovávám na formulář...
+                Dotazníky byly úspěšně staženy.
             </div>
         {/if}
     </div>

@@ -1,7 +1,5 @@
 <script>
-    import { onMount } from "svelte";
     import { listForms } from "$lib/formStore.js";
-    import { goto } from "$app/navigation";
 
     let forms = $state([]);
     let isLoading = $state(true);
@@ -17,7 +15,7 @@
             })
             .catch((err) => {
                 console.error("Failed to load forms:", err);
-                error = "Could not load form definitions.";
+                error = "Nepodařilo se načíst dotazníky.";
             })
             .finally(() => {
                 isLoading = false;
@@ -26,33 +24,32 @@
 </script>
 
 {#if isLoading}
-<p>Loading form definitions...</p>
+<p>Načítám dotazníky...</p>
 {:else if error}
 <p style="color: red;">{error}</p>
 {:else if forms.length === 0}
-<p>No form definitions found. Create one!</p>
+<p>Zatím nemáte žádné dotazníky, obdržíte je od lékaře</p>
 {:else}
-    <h1>Available Form Definitions</h1>
-    <ul>
-        {#each forms as form (form.id)}
-            <li>
-                <a href="/patient-form/{form.id}">
-                    {form.name}
-                    <br>
-                    {form.description || "Bez popisu"}
-                </a>
-                <a href="/form-edit/{form.id}"> Edit </a>
-            </li>
-        {/each}
-    </ul>
+    <h1 class="mb-6 text-center text-2xl font-bold text-gray-800">Aktuální dotazníky</h1>
+    <div class="w-full max-w-md mx-auto rounded-lg border border-gray-200 bg-white p-6 shadow-md">
+        <ul>
+            {#each forms as form (form.id)}
+                <li>
+                    <a href="/patient-form/{form.id}" class="block mb-2">
+                        <span class="font-medium">{form.name}</span>
+                        <br>
+                        <span class="text-sm text-gray-600">{form.description || "Bez popisu"}</span>
+                    </a>
+                    <a href="/form-edit/{form.id}" class="text-blue-600 hover:underline"> Edit </a>
+                </li>
+            {/each}
+        </ul>
+    </div>
 {/if}
 
-<ul>
-    <li>
-        <a href="/patient-code-input">Zadání kódu od lékaře</a>
-    </li>
-</ul>
-
+<a href="/patient-code-input" class="code-input-button w-full max-w-md mx-auto mt-6 block rounded-lg bg-blue-600 text-white text-center py-4 px-6 shadow-md hover:bg-blue-700 transition-colors">
+    Zadání kódu od lékaře
+</a>
 
 <style>
     ul {
@@ -61,22 +58,29 @@
     }
     li {
         margin-bottom: 10px;
-        padding: 10px;
+        padding: 15px;
         border: 1px solid #ccc;
-        border-radius: 4px;
+        border-radius: 8px;
+        background-color: #f9f9f9;
+        transition: all 0.2s ease;
+    }
+    li:hover {
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        transform: translateY(-2px);
     }
     li a {
         text-decoration: none;
-        color: var(
-            --color-text,
-            #333
-        ); /* Use CSS variables if defined globally */
-    }
-    li a:hover {
-        text-decoration: underline;
+        color: var(--color-text, #333);
     }
     button {
         padding: 8px 15px;
         cursor: pointer;
+    }
+    .code-input-button {
+        font-weight: 500;
+        text-decoration: none;
+    }
+    .code-input-button:hover {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     }
 </style>

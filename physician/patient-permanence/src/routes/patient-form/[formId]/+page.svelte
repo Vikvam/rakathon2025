@@ -1,9 +1,10 @@
 <script lang="ts">
     import { browser } from "$app/environment";
     import { onDestroy, onMount } from "svelte"; // Import onMount if needed, onDestroy for cleanup
-    import { formSaveAnswers } from "$lib/formStore"; // Assuming this utility exists
+    import { formSaveAnswers, getForm } from "$lib/formStore"; // Assuming this utility exists
     import { goto } from "$app/navigation";
-    
+    import { getFormOverallStatus, exportFormSummary } from "$lib/exportForm";
+
     // --- Component Props (Svelte 5) ---
     let { data } = $props(); // Passed from +page.ts load function
 
@@ -18,6 +19,9 @@
     let submissionMessage = $state("");
     let submissionSuccess = $state(false);
     let isSubmitting = $state(false);
+    let isAnyAnswerCritical = $state(false);
+    let isAnyAnswerProblematic = $state(false);
+    let emailContent = $state("");
 
     // --- Reactive Derived State ---
     // Get the current question object based on the index
@@ -189,7 +193,17 @@
             await formSaveAnswers(data.formId, submissionData.answers);
             // ----------------------------------------------
 
-            submissionMessage = "Formulář byl úspěšně odeslán!";
+            const formJson = await getForm(data.formId);
+            if (formJson) {
+                const form = JSON.parse(formJson);
+                const { isProblematic, isCritical } = getFormOverallStatus(form);
+                isAnyAnswerProblematic = isProblematic;
+                isAnyAnswerCritical = isCritical;
+
+                emailContent = exportFormSummary(form);
+            }
+
+            submissionMessage = "Formulář byl úspěšně uložen";
             submissionSuccess = true;
             console.log("Submission successful (simulated & saved).");
 
@@ -551,9 +565,9 @@
                                     d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                                 ></path>
                             </svg>
-                            Odesílání...
+                            Ukládání...
                         {:else}
-                            Odeslat formulář
+                            Uložit formulář
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
                                 class="ml-1 inline-block h-5 w-5"
@@ -638,6 +652,18 @@
                 >
                     {submissionMessage}
                 </p>
+
+                {#if isAnyAnswerCritical}
+                    <p>Tyto informace vašeho lékaře zajímají. Prosím, odešlete mu e-mail.</p>
+                    <a
+                        href="mailto:info@example.com?subject=Formulář ${formData.name} byl odeslán&body=${emailContent}"
+                        target="_blank"
+                        class="mt-6 inline-block rounded-md bg-yellow-600 py-2 px-5 font-semibold text-white hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2"
+                    >
+                        Odeslat E-mail
+                    </a>
+                    <br>
+                {/if}
                 <a
                     href="/forms"
                     class="mt-6 inline-block rounded-md bg-blue-600 py-2 px-5 font-semibold text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"

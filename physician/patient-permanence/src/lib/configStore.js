@@ -1,12 +1,6 @@
 // src/lib/configStore.js (or wherever you keep your stores)
-
-import {
-    readTextFile,
-    writeTextFile,
-    exists, // Keep exists if you want to explicitly check, though try/catch on read is also effective
-    BaseDirectory,
-    // mkdir is only needed if you decide to use a subdirectory
-} from "@tauri-apps/plugin-fs";
+import { BaseDirectory } from "@tauri-apps/api/path";
+import { readFsFile, writeFsFile, existsFsFile } from "./fs.js";
 
 // Define the name for the configuration file
 const CONFIG_FILENAME = "user_config.json";
@@ -38,7 +32,7 @@ export async function initializeConfigStore() {
     try {
         // If using a subdirectory, check and create it here:
         /*
-        const dirExists = await exists(CONFIG_SUBDIR, { baseDir: BaseDirectory.AppLocalData });
+        const dirExists = await existsFsFile(CONFIG_SUBDIR, { baseDir: BaseDirectory.AppLocalData });
         if (!dirExists) {
           console.log(`[configStore] Creating config directory: ${CONFIG_SUBDIR}`);
           await mkdir(CONFIG_SUBDIR, { baseDir: BaseDirectory.AppLocalData, recursive: true });
@@ -47,8 +41,8 @@ export async function initializeConfigStore() {
         */
 
         // Check if the config file itself is accessible (optional but good for early permission check)
-        // We use exists() primarily to test access permissions early.
-        const fileExists = await exists(CONFIG_FILENAME, {
+        // We use existsFsFile() primarily to test access permissions ear        
+        const fileExists = await existsFsFile(CONFIG_FILENAME, {
             baseDir: BaseDirectory.AppLocalData,
         });
         if (fileExists) {
@@ -95,7 +89,7 @@ export async function getConfig() {
         const filePath = CONFIG_FILENAME;
         console.log(`[configStore] Reading config from ${filePath} (AppLocalData)`);
 
-        const content = await readTextFile(filePath, {
+        const content = await readFsFile(filePath, {
             baseDir: BaseDirectory.AppLocalData,
         });
 
@@ -114,7 +108,7 @@ export async function getConfig() {
         }
     } catch (error) {
         // Handle errors, especially file not found
-        // Tauri's readTextFile throws an error if the file doesn't exist.
+        // Tauri's readFsFile throws an error if the file doesn't exist.
         // The error message might vary slightly across platforms/versions.
         if (
             error.message?.includes("os error 2") || // Common on Linux/macOS
@@ -167,7 +161,7 @@ export async function saveConfig(configObject) {
         // Convert the object to a pretty-printed JSON string
         const configString = JSON.stringify(configObject, null, 2); // null, 2 for indentation
 
-        await writeTextFile(filePath, configString, {
+        await writeFsFile(filePath, configString, {
             baseDir: BaseDirectory.AppLocalData,
         });
 

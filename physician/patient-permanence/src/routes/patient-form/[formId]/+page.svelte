@@ -57,7 +57,7 @@
                 }
 
                 // Parse the JSON string provided by the load function
-                const parsedJson = JSON.parse(data.formJsonString);
+                const parsedJson = JSON.parse(data.formJsonString).formTemplate;
 
                 // *** IMPORTANT: Adjust based on your actual JSON structure ***
                 // Assuming the structure saved by monitoring-config is { formTemplate: { ... } }

@@ -8,7 +8,7 @@
     { "value": "opt_3", "text": "Spíše ne" }
   ],
   "defaultValue": "opt_2",
-  "problematicValues": ["opt_1"],
+  "problematicValues": ["opt_2"],
   "criticalValues": ["opt_3"],
   "timeParameterization": {
     "scheduleId": "SCHED_DAILY_MORNING",

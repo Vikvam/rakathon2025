@@ -48,6 +48,7 @@
                 <a href="/patient-form/{form.id}">
                     {form.name} ({form.id})
                 </a>
+                <a href="/form-edit/{form.id}"> Edit </a>
             </li>
         {/each}
     </ul>

@@ -1,3 +1,4 @@
+import { json } from "@sveltejs/kit";
 import {
   readDir,
   readTextFile,
@@ -207,6 +208,45 @@ export async function saveForm(formId, formJsonContent) {
     }
     return false;
   }
+}
+
+/**
+ * Saves answers to a form definition file.
+ * @param {string} formId - The identifier (filename without extension) for the form.
+ * @param {Object} answers - The answers to save.
+ * @returns {Promise<boolean>} True on success, false on failure.
+ */
+export async function formSaveAnswers(formId, answers) {
+  if (!formId || !answers) return false;
+
+  console.log(answers);
+
+  const data = await getForm(formId);
+  if (!data) return false;
+  const form = JSON.parse(data);
+  
+  // create a new form to which we will push the new questions with answers
+  let new_form = JSON.parse(JSON.stringify(form));
+  new_form.formTemplate.questions = [];
+  
+  for (const [questionKey, answer] of Object.entries(answers)) {
+    const question = form.formTemplate.questions.find(q => q.key === questionKey);
+    if (!question) continue;
+    const new_question = JSON.parse(JSON.stringify(question));
+
+    if (!new_question.answers) new_question.answers = [];
+    
+    new_question.answers.push({
+      timestamp: new Date().toISOString(),
+      value: answer,
+    });
+
+    new_form.formTemplate.questions.push(new_question);
+  }
+
+  await saveForm(formId, JSON.stringify(new_form));
+
+  return true;
 }
 
 /**

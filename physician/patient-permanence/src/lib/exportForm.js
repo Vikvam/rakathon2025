@@ -327,9 +327,9 @@ export function exportFormSummary(formJSON) {
 
   // Join summaries
   if (summaries.length > 0) {
-    return "Subj.: " + summaries.join(", ");
+    return "Subj.:\n" + summaries.join("\n");
   } else {
-    return "Žádné otázky k shrnutí.";
+    return "Žádné otázky ke shrnutí.";
   }
 }
 

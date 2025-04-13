@@ -1,6 +1,5 @@
 <script>
     import { onMount } from "svelte"; // Keep onMount if needed for other things, otherwise remove
-    import { listForms } from "$lib/formStore.js";
     import { registerActionTypes } from "@tauri-apps/plugin-notification";
 
     // goto is no longer needed here for notifications
@@ -12,7 +11,7 @@
     } from "@tauri-apps/plugin-notification";
     // listen is no longer needed here
     // import { listen } from "@tauri-apps/api/event";
-    import {getForms, listForms} from "$lib/formStore.js";
+    import { getForms, listForms } from "$lib/formStore.js";
 
     let forms = $state([]);
     let isLoading = $state(true);
@@ -89,7 +88,7 @@
         isLoading = true;
         error = null;
         console.log("Form list effect running...");
-        listForms()
+        listForms();
         getForms()
             .then((data) => {
                 forms = data;
@@ -160,18 +159,28 @@
     >
         <ul>
             {#each forms as form, index (form.id)}
-                <li
-                    class="mb-4 p-4 border border-gray-200 rounded-lg bg-gray-50 hover:shadow-md transition-shadow duration-200 ease-in-out"
-                >
-                    <a href="/patient-form/{form.id}" class="block mb-2 group">
-                        <span
-                            class="font-medium text-lg text-blue-700 group-hover:underline"
-                            >{form.name}</span
-                        >
+                <li>
+                    <a
+                        href="/patient-form/{form.templateId}"
+                        class="block mb-2"
+                    >
+                        <span class="font-medium">{form.name}</span>
                         <br />
                         <span class="text-sm text-gray-600"
                             >{form.description || "Bez popisu"}</span
                         >
+                    </a>
+                    <a
+                        href="/form-edit/{form.templateId}"
+                        class="text-blue-600 hover:underline"
+                    >
+                        Edit
+                    </a>
+                    <a
+                        href="/form-summary/{form.templateId}"
+                        class="text-blue-600 hover:underline"
+                    >
+                        Shrnutí
                     </a>
 
                     {#if index === forms.length - 1}
@@ -179,35 +188,6 @@
                             Je na čase dotazník vyplnit
                         </p>
                     {/if}
-                    <div class="mt-2 space-x-4 text-sm">
-                        <a
-                            href="/patient-form/{form.id}"
-                            class="text-green-600 hover:text-green-800 hover:underline font-medium"
-                            >Vyplnit</a
-                        >
-                        <a
-                            href="/form-edit/{form.id}"
-                            class="text-blue-600 hover:text-blue-800 hover:underline"
-                            >Editovat</a
-                        >
-                        <a
-                            href="/form-summary/{form.id}"
-                            class="text-purple-600 hover:text-purple-800 hover:underline"
-                            >Sumarizovat</a
-                        >
-                    </div>
-    <h1 class="mb-6 text-center text-2xl font-bold text-gray-800">Aktuální dotazníky</h1>
-    <div class="w-full max-w-md mx-auto rounded-lg border border-gray-200 bg-white p-6 shadow-md">
-        <ul>
-            {#each forms as form (form.templateId)}
-                <li>
-                    <a href="/patient-form/{form.templateId}" class="block mb-2">
-                        <span class="font-medium">{form.name}</span>
-                        <br>
-                        <span class="text-sm text-gray-600">{form.description || "Bez popisu"}</span>
-                    </a>
-                    <a href="/form-edit/{form.templateId}" class="text-blue-600 hover:underline"> Edit </a>
-                    <a href="/form-summary/{form.templateId}" class="text-blue-600 hover:underline"> Shrnutí </a>
                 </li>
             {/each}
         </ul>

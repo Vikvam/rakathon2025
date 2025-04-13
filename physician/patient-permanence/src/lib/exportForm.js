@@ -241,21 +241,23 @@ export function isCritical(formJSON, questionIdx, answerIdx) {
 }
 
 /**
- * Exports a summary based on *all* answers for each question.
+ * Exports a summary based on *all* answers for each question, grouped by category.
  * - Numerical: Shows mean + overall status flag (critical/problematic/normal).
  * - Single Choice: Shows overall status text (critical/problematic/negates).
  * Overall status is determined by checking *all* answers using the updated
  * isCritical/isProblematic functions (which include dual deviation checks).
  *
  * @param {object} formJSON - The complete form JSON object including answers arrays per question.
- * @returns {string} - A summary string.
+ * @returns {string} - A summary string with questions grouped by category.
  */
 export function exportFormSummary(formJSON) {
   if (!formJSON?.formTemplate?.questions) {
     return "Chybí data formuláře.";
   }
 
-  const summaries = [];
+  // Object to store category-specific summaries
+  /** @type {Object.<string, Array<string>>} */
+  const categorySummaries = {};
   const questions = formJSON.formTemplate.questions;
 
   for (let i = 0; i < questions.length; i++) {
@@ -263,15 +265,22 @@ export function exportFormSummary(formJSON) {
     const answers = question.answers || [];
     const totalAnswers = answers.length;
 
-    const keyText = question.key.replace(/\_/g, " ");
-
+    // Skip questions with no answers
     if (totalAnswers === 0) {
-      summaries.push(`${keyText}: N/A`);
       continue;
     }
 
+    const keyText = question.key.replace(/\_/g, " ");
+    
+    // Get category name from formName or fallback to "Ostatní" (Other)
+    const category = question.formName || "Ostatní";
+
+    // Initialize category array if it doesn't exist
+    if (!categorySummaries[category]) {
+      categorySummaries[category] = [];
+    }
+
     // --- Get Overall Status (using updated isCritical/isProblematic) ---
-    // This function now implicitly uses the dual deviation logic
     const { isAnyCritical, isAnyProblematic } = getQuestionOverallStatus(
       formJSON,
       i,
@@ -282,13 +291,18 @@ export function exportFormSummary(formJSON) {
 
     if (question.dataType === "numerical") {
       // Calculate mean
+      /** @type {Array<number>} */
       const numericalValues = answers
-        .map((a) => a.value)
-        .filter((v) => typeof v === "number");
+        .map(/** @param {any} a */ (a) => a.value)
+        .filter(/** @param {any} v */ (v) => typeof v === "number");
       const validCount = numericalValues.length;
       let meanValueStr = "N/A";
       if (validCount > 0) {
-        const sum = numericalValues.reduce((acc, val) => acc + val, 0);
+        const sum = numericalValues.reduce(
+          /** @param {number} acc @param {number} val */
+          (acc, val) => acc + val, 
+          0
+        );
         const mean = sum / validCount;
         meanValueStr = mean.toFixed(1);
       }
@@ -322,15 +336,26 @@ export function exportFormSummary(formJSON) {
       summaryPart = `${keyText}: ${valueStr}`;
     }
 
-    summaries.push(summaryPart);
+    categorySummaries[category].push(summaryPart);
   }
 
-  // Join summaries
-  if (summaries.length > 0) {
-    return "Subj.:\n" + summaries.join("\n");
-  } else {
+  // Join summaries by category
+  const resultLines = ["Subj.:"];
+  
+  // Get all categories
+  const categories = Object.keys(categorySummaries);
+  
+  if (categories.length === 0) {
     return "Žádné otázky ke shrnutí.";
   }
+  
+  // Add each category with its summaries
+  categories.forEach(category => {
+    resultLines.push(`\n${category}:`);
+    resultLines.push(categorySummaries[category].join("\n"));
+  });
+
+  return resultLines.join("\n");
 }
 
 function getQaData(formJSON, questionIdx, answerIdx) {
@@ -375,6 +400,7 @@ function calculateDeviationPercent(currentValue, previousValue) {
  * @returns {{isAnyCritical: boolean, isAnyProblematic: boolean}} - Overall status flags.
  */
 function getQuestionOverallStatus(formJSON, questionIdx) {
+  /** @type {any} */
   const question = formJSON?.formTemplate?.questions?.[questionIdx];
   const answers = question?.answers || [];
   let isAnyCritical = false;

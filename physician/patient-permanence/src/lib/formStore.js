@@ -1,4 +1,4 @@
-import { json } from "@sveltejs/kit";
+
 import {
   readDir,
   readTextFile,

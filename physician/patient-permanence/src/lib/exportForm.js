@@ -241,21 +241,23 @@ export function isCritical(formJSON, questionIdx, answerIdx) {
 }
 
 /**
- * Exports a summary based on *all* answers for each question.
+ * Exports a summary based on *all* answers for each question, grouped by category.
  * - Numerical: Shows mean + overall status flag (critical/problematic/normal).
  * - Single Choice: Shows overall status text (critical/problematic/negates).
  * Overall status is determined by checking *all* answers using the updated
  * isCritical/isProblematic functions (which include dual deviation checks).
  *
  * @param {object} formJSON - The complete form JSON object including answers arrays per question.
- * @returns {string} - A summary string.
+ * @returns {string} - A summary string with questions grouped by category.
  */
 export function exportFormSummary(formJSON) {
   if (!formJSON?.formTemplate?.questions) {
     return "Chybí data formuláře.";
   }
 
-  const summaries = [];
+  // Object to store category-specific summaries
+  /** @type {Object.<string, Array<string>>} */
+  const categorySummaries = {};
   const questions = formJSON.formTemplate.questions;
 
   for (let i = 0; i < questions.length; i++) {
@@ -263,15 +265,22 @@ export function exportFormSummary(formJSON) {
     const answers = question.answers || [];
     const totalAnswers = answers.length;
 
-    const keyText = question.key.replace(/\_/g, " ");
-
+    // Skip questions with no answers
     if (totalAnswers === 0) {
-      summaries.push(`${keyText}: N/A`);
       continue;
     }
 
+    const keyText = question.key.replace(/\_/g, " ");
+    
+    // Get category name from formName or fallback to "Ostatní" (Other)
+    const category = question.formName || "Ostatní";
+
+    // Initialize category array if it doesn't exist
+    if (!categorySummaries[category]) {
+      categorySummaries[category] = [];
+    }
+
     // --- Get Overall Status (using updated isCritical/isProblematic) ---
-    // This function now implicitly uses the dual deviation logic
     const { isAnyCritical, isAnyProblematic } = getQuestionOverallStatus(
       formJSON,
       i,
@@ -282,13 +291,18 @@ export function exportFormSummary(formJSON) {
 
     if (question.dataType === "numerical") {
       // Calculate mean
+      /** @type {Array<number>} */
       const numericalValues = answers
-        .map((a) => a.value)
-        .filter((v) => typeof v === "number");
+        .map(/** @param {any} a */ (a) => a.value)
+        .filter(/** @param {any} v */ (v) => typeof v === "number");
       const validCount = numericalValues.length;
       let meanValueStr = "N/A";
       if (validCount > 0) {
-        const sum = numericalValues.reduce((acc, val) => acc + val, 0);
+        const sum = numericalValues.reduce(
+          /** @param {number} acc @param {number} val */
+          (acc, val) => acc + val, 
+          0
+        );
         const mean = sum / validCount;
         meanValueStr = mean.toFixed(1);
       }
@@ -322,15 +336,26 @@ export function exportFormSummary(formJSON) {
       summaryPart = `${keyText}: ${valueStr}`;
     }
 
-    summaries.push(summaryPart);
+    categorySummaries[category].push(`- ${summaryPart}`);
   }
 
-  // Join summaries
-  if (summaries.length > 0) {
-    return "Subj.: " + summaries.join(", ");
-  } else {
-    return "Žádné otázky k shrnutí.";
+  // Join summaries by category
+  const resultLines = ["Subj.:"];
+  
+  // Get all categories
+  const categories = Object.keys(categorySummaries);
+  
+  if (categories.length === 0) {
+    return "Žádné otázky ke shrnutí.";
   }
+  
+  // Add each category with its summaries
+  categories.forEach(category => {
+    resultLines.push(`\n${category}:`);
+    resultLines.push(categorySummaries[category].join("\n"));
+  });
+
+  return resultLines.join("\n");
 }
 
 function getQaData(formJSON, questionIdx, answerIdx) {
@@ -375,6 +400,7 @@ function calculateDeviationPercent(currentValue, previousValue) {
  * @returns {{isAnyCritical: boolean, isAnyProblematic: boolean}} - Overall status flags.
  */
 function getQuestionOverallStatus(formJSON, questionIdx) {
+  /** @type {any} */
   const question = formJSON?.formTemplate?.questions?.[questionIdx];
   const answers = question?.answers || [];
   let isAnyCritical = false;
@@ -427,4 +453,156 @@ export function getFormOverallStatus(formJSON) {
     }
   }
   return { isCritical, isProblematic };
+}
+
+/**
+ * Creates an ASCII table of raw answer values with questions as rows and dates as columns.
+ * Questions are grouped by their formName (category).
+ * 
+ * @param {object} formJSON - The complete form JSON object including answers arrays per question.
+ * @returns {string} - An ASCII table string representation of the data.
+ */
+export function exportFormTable(formJSON) {
+  if (!formJSON?.formTemplate?.questions) {
+    return "Chybí data formuláře.";
+  }
+
+  const questions = formJSON.formTemplate.questions;
+  
+  // Group questions by category
+  /** @type {Object.<string, Array<any>>} */
+  const categorizedQuestions = {};
+  
+  // First, collect all dates across all questions
+  const allDatesSet = new Set();
+  
+  // Collect questions with answers and gather all unique dates
+  for (const question of questions) {
+    const answers = question.answers || [];
+    if (answers.length === 0) continue;
+    
+    // Get category name from formName or fallback to "Ostatní" (Other)
+    const category = question.formName || "Ostatní";
+    
+    // Initialize category array if it doesn't exist
+    if (!categorizedQuestions[category]) {
+      categorizedQuestions[category] = [];
+    }
+    
+    // Add question to its category
+    categorizedQuestions[category].push(question);
+    
+    // Collect all dates from answers
+    for (const answer of answers) {
+      if (answer.timestamp) {
+        allDatesSet.add(formatDate(answer.timestamp));
+      }
+    }
+  }
+  
+  // Convert the Set to a sorted array of dates
+  const allDates = Array.from(allDatesSet).sort();
+  
+  if (allDates.length === 0) {
+    return "Žádná data k zobrazení v tabulce.";
+  }
+  
+  // Create the table
+  let result = [];
+  
+  // Calculate column widths
+  const keyColWidth = Math.max(20, ...questions.map(q => (q.key.replace(/_/g, " ")).length));
+  const dateColWidth = 10; // YYYY-MM-DD format
+  
+  // Helper function to pad strings to specific width
+  const pad = (str, width) => {
+    return String(str).padEnd(width);
+  };
+  
+  // Helper function to create a horizontal separator line
+  const createSeparator = () => {
+    return "+" + "-".repeat(keyColWidth + 2) + 
+           allDates.map(() => "+" + "-".repeat(dateColWidth + 2)).join("") + 
+           "+";
+  };
+  
+  // For each category, create a section in the table
+  Object.keys(categorizedQuestions).forEach(category => {
+    const categoryQuestions = categorizedQuestions[category];
+    
+    // Add category header
+    result.push(createSeparator());
+    result.push(`| ${category.padEnd(keyColWidth)} ${allDates.map(d => `| ${pad(d, dateColWidth)} `).join("")}|`);
+    result.push(createSeparator());
+    
+    // Add each question's data
+    categoryQuestions.forEach(question => {
+      const keyText = question.key.replace(/_/g, " ");
+      const answers = question.answers || [];
+      
+      // Create a map of date -> value for this question
+      const dateValueMap = {};
+      answers.forEach(answer => {
+        if (answer.timestamp) {
+          const dateStr = formatDate(answer.timestamp);
+          dateValueMap[dateStr] = formatValue(answer.value, question.dataType);
+        }
+      });
+      
+      // Create the row
+      let row = `| ${pad(keyText, keyColWidth)} `;
+      
+      // Add each date's value or empty cell
+      allDates.forEach(date => {
+        const value = dateValueMap[date] !== undefined ? dateValueMap[date] : "";
+        row += `| ${pad(value, dateColWidth)} `;
+      });
+      
+      row += "|";
+      result.push(row);
+    });
+    
+    // Add a separator at the end of each category
+    result.push(createSeparator());
+  });
+  
+  return result.join("\n");
+}
+
+/**
+ * Format a timestamp to YYYY-MM-DD format
+ * 
+ * @param {string} timestamp - ISO timestamp
+ * @returns {string} - Formatted date
+ */
+function formatDate(timestamp) {
+  try {
+    const date = new Date(timestamp);
+    return date.toISOString().split('T')[0]; // YYYY-MM-DD
+  } catch (error) {
+    return "Invalid";
+  }
+}
+
+/**
+ * Format a value based on its dataType
+ * 
+ * @param {any} value - The answer value
+ * @param {string} dataType - The question's data type
+ * @returns {string} - Formatted value
+ */
+function formatValue(value, dataType) {
+  if (value === null || value === undefined) {
+    return "";
+  }
+  
+  if (dataType === "numerical") {
+    return typeof value === "number" ? value.toString() : "";
+  } else if (dataType === "single_choice") {
+    return value.toString().substring(0, 10); // Truncate if too long
+  } else {
+    // For any other type, convert to string and truncate if needed
+    const strValue = JSON.stringify(value);
+    return strValue.length > 10 ? strValue.substring(0, 7) + "..." : strValue;
+  }
 }

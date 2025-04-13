@@ -5,7 +5,9 @@
 </script>
 
 <div class="app-container">
-    <Header />
+    
+        <Header />
+    
     <main class="page-content">
         <slot />
         <!-- Page content will be rendered here -->

@@ -56,7 +56,7 @@
 
         if (permissionGranted) {
             console.log(
-                `Sending notification for form: ${form.name} (ID: ${form.id})`,
+                `Sending notification for form: ${form.name} (ID: ${form.templateId})`,
             );
             try {
                 await sendNotification({
@@ -66,6 +66,9 @@
                     actionTypeId: "messages",
                 });
                 console.log("Notification sent successfully.");
+                // It might be better to register the onAction listener once, perhaps in onMount or globally,
+                // rather than re-registering every time a notification is sent.
+                // However, keeping the existing logic for now.
                 await onAction((notification) => {
                     console.log("Action performed:", notification);
                 });
@@ -88,7 +91,7 @@
         isLoading = true;
         error = null;
         console.log("Form list effect running...");
-        listForms();
+        listForms(); // Assuming this triggers an update to the store which getForms reads
         getForms()
             .then((data) => {
                 forms = data;
@@ -140,54 +143,64 @@
     <p class="text-center text-gray-500 my-8">Načítám dotazníky...</p>
 {:else if error}
     <div
-        class="my-4 p-4 rounded-md text-sm bg-red-100 border border-red-300 text-red-700"
+        class="my-4 p-4 rounded-md text-sm bg-red-100 border border-red-300 text-red-700 max-w-md mx-auto"
         role="alert"
     >
         <strong class="font-semibold">Chyba:</strong>
         {error}
     </div>
 {:else if forms.length === 0}
-    <p class="text-center text-gray-500 my-8">
+    <p class="text-center text-gray-500 my-8 max-w-md mx-auto">
         Zatím nemáte žádné dotazníky, obdržíte je od lékaře.
     </p>
 {:else}
     <h1 class="mb-6 text-center text-2xl font-bold text-gray-800">
         Aktuální dotazníky
     </h1>
-    <div
-        class="w-full max-w-md mx-auto rounded-lg border border-gray-200 bg-white p-6 shadow-md"
-    >
+    <div class="w-full max-w-md mx-auto space-y-4">
         <ul>
-            {#each forms as form, index (form.id)}
+            {#each forms as form, index (form.templateId)}
                 <li>
-                    <a
-                        href="/patient-form/{form.templateId}"
-                        class="block mb-2"
+                    <div
+                        class="rounded-lg border border-gray-200 bg-white p-6 shadow-md"
                     >
-                        <span class="font-medium">{form.name}</span>
-                        <br />
-                        <span class="text-sm text-gray-600"
-                            >{form.description || "Bez popisu"}</span
+                        <a
+                            href="/patient-form/{form.templateId}"
+                            class="block mb-3"
+                            aria-label="Vyplnit dotazník {form.name}"
                         >
-                    </a>
-                    <a
-                        href="/form-edit/{form.templateId}"
-                        class="text-blue-600 hover:underline"
-                    >
-                        Edit
-                    </a>
-                    <a
-                        href="/form-summary/{form.templateId}"
-                        class="text-blue-600 hover:underline"
-                    >
-                        Shrnutí
-                    </a>
+                            <span class="font-medium text-lg text-gray-900"
+                                >{form.name}</span
+                            >
+                            <br />
+                            <span class="text-sm text-gray-600"
+                                >{form.description || "Bez popisu"}</span
+                            >
+                        </a>
 
-                    {#if index === forms.length - 1}
-                        <p class="text-red-600 font-semibold mt-2 mb-2 text-sm">
-                            Je na čase dotazník vyplnit
-                        </p>
-                    {/if}
+                        <div class="flex space-x-4 mt-2 text-sm">
+                            <a
+                                href="/form-edit/{form.templateId}"
+                                class="text-blue-600 hover:underline"
+                                aria-label="Upravit dotazník {form.name}"
+                            >
+                                Editovat
+                            </a>
+                            <a
+                                href="/form-summary/{form.templateId}"
+                                class="text-green-600 hover:underline"
+                                aria-label="Zobrazit shrnutí dotazníku {form.name}"
+                            >
+                                Shrnutí
+                            </a>
+                        </div>
+
+                        {#if index === forms.length - 1}
+                            <p class="text-red-600 font-semibold mt-3 text-sm">
+                                Je na čase tento dotazník vyplnit
+                            </p>
+                        {/if}
+                    </div>
                 </li>
             {/each}
         </ul>
@@ -202,9 +215,11 @@
 </a>
 
 <style>
+    /* Keep ul reset if needed, though Tailwind often handles this */
     ul {
         list-style: none;
         padding: 0;
+        margin: 0; /* Added margin reset */
     }
     /* Removed li styles as Tailwind is used now */
     .code-input-button {
@@ -214,4 +229,6 @@
     .code-input-button:hover {
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     }
+
+    /* Removed the rule that displayed aria-label on hover */
 </style>

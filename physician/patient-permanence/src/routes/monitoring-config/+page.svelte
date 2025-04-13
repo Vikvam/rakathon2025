@@ -308,8 +308,8 @@
 
         const formTemplate = {
             templateId: templateId,
-            name: "Vlastní Konfigurace", // Default name
-            description: "Vygenerováno z konfiguračního nástroje", // Default description
+            name: formName, // Default name
+            description: formDescription, // Default description
             defaultSchedules: [
                 // Standard schedules included in the template
                 {
@@ -755,7 +755,7 @@
         {/if}
     </div>
 </div>
-```
+
 
 <style lang="postcss">
     @reference '../../app.css'; /* Adjust path if needed */

@@ -2,6 +2,8 @@
     import { browser } from "$app/environment";
     import { onDestroy, onMount } from "svelte"; // Import onMount if needed, onDestroy for cleanup
     import { formSaveAnswers, getForm } from "$lib/formStore"; // Assuming this utility exists
+    import { getConfig } from "$lib/configStore.js";
+
     import { goto } from "$app/navigation";
     import { getFormOverallStatus, exportFormSummary } from "$lib/exportForm";
 
@@ -9,6 +11,7 @@
     let { data } = $props(); // Passed from +page.ts load function
 
     // --- Component State ---
+    let config = $state({});         // Holds the loaded config object { user: '...' }
     let formData = $state<any>(null); // Parsed form structure { name, description, questions, ... }
     let currentQuestionIndex = $state(0);
     let answers = $state<Record<string, any>>({}); // Store answers keyed by question.key
@@ -57,6 +60,16 @@
 
         // Use a minimal timeout to ensure UI updates before potentially heavy parsing
         const timer = setTimeout(() => {
+            getConfig()
+                .then((data) => {
+                    config = data;
+                })
+                .catch((err) => {
+                    console.error("Failed to load forms:", err);
+                })
+                .finally(() => {
+                    isLoading = false;
+                });
             try {
                 if (!data.formJsonString) {
                     throw new Error("Formulář nebyl nalezen nebo je prázdný.");

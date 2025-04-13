@@ -3,7 +3,8 @@
     import { readDir, readTextFile } from "@tauri-apps/plugin-fs"; // Assuming Tauri might be used
     import { resolveResource } from "@tauri-apps/api/path"; // Assuming Tauri might be used
     import { goto } from "$app/navigation";
-    import { browser } from "$app/environment"; // Import browser check
+    import { browser } from "$app/environment";
+    import { getConfig } from "$lib/configStore.js"; // Import browser check
 
     // --- State Management (Svelte 5 Runes) ---
     let errorMessage = $state("");
@@ -12,6 +13,11 @@
     let isProcessing = $state(false); // Used for loading and the combined action
     let categoriesData = $state([]);
     let generatedJsonOutput = $state(""); // State to hold the generated JSON string internally
+
+    let formName = $state("");
+    let formDescription = $state(
+        "Dotazník o zdravotním stavu mezi návštěvami abulance",
+    );
 
     // --- Constants ---
     const frequencyOptions = [
@@ -156,6 +162,21 @@
         } finally {
             isLoading = false;
         }
+    });
+
+    // TODO: maybe race condition?
+    $effect(() => {
+        isLoading = true;
+        getConfig()
+            .then((data) => {
+                formName = `${data.user}, ${data.workspace}`;
+            })
+            .catch((err) => {
+                console.error("Failed to load forms:", err);
+            })
+            .finally(() => {
+                isLoading = false;
+            });
     });
 
     // --- Helper Functions ---
@@ -470,9 +491,22 @@
 
         {#if !isLoading}
             <div>
-                <h2 class="text-xl font-semibold mb-3 text-gray-700 pt-4">
-                    Načtené Kategorie a Otázky
-                </h2>
+                <p class="text-l mb-1text-gray-700 pt-4">
+                    <span class="font-semibold mr-1">Název dotazníku:</span>
+                    {formName}
+                </p>
+                <div class="flex text-l text-m mb-1">
+                    <label class="font-semibold mr-24" for="username-input"
+                        >Popis:</label
+                    >
+                    <input
+                        type="text"
+                        class="flex-1"
+                        bind:value={formDescription}
+                        required
+                        aria-describedby="status-feedback"
+                    />
+                </div>
                 <p class="text-sm text-gray-600 mb-6 leading-relaxed">
                     Zaškrtněte kategorie a otázky, které chcete zahrnout do
                     dotazníku pro pacienta. U každé položky nebo celé kategorie

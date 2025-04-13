@@ -172,6 +172,85 @@ export async function getForm(formId) {
 }
 
 /**
+ * Retrieves the content of all form definition files as JSON strings.
+ * Reads the forms directory, filters for .json files, and reads their content.
+ * Skips files that cannot be read or parsed, logging an error for each.
+ * @returns {Promise<Array<Object>>} A list of form JSON contents. Returns empty array on directory read error.
+ */
+export async function getForms() {
+  // Ensure the directory is ready before listing/reading
+  // Assuming initializeFormStore handles the isInitialized flag internally
+  const initialized = await initializeFormStore();
+  if (!initialized) {
+    console.error("[formStore:getForms] Store not initialized. Aborting.");
+    return []; // Cannot proceed if store isn't ready
+  }
+
+  console.log(`[formStore:getForms] Reading all forms from ${FORM_SUBDIR}`);
+  try {
+    // 1. Read the directory
+    const entries = await readDir(FORM_SUBDIR, {
+      baseDir: BaseDirectory.AppLocalData,
+      recursive: false, // Usually false for a flat list of forms
+    });
+
+    // 2. Filter for .json files
+    const formFileEntries = entries.filter(
+        (entry) => entry.name?.endsWith(".json") && !entry.children,
+    );
+
+    // 3. Read content of each file concurrently
+    const formContentPromises = formFileEntries.map(async (fileEntry) => {
+      const formId = fileEntry.name.replace(".json", ""); // For logging purposes
+      const relativePath = `${FORM_SUBDIR}/${fileEntry.name}`;
+      try {
+        // Read file content
+        const content = await readTextFile(relativePath, {
+          baseDir: BaseDirectory.AppLocalData,
+        });
+        // Optional: Basic validation that content is valid JSON
+        return JSON.parse(content).formTemplate;
+      } catch (readError) {
+        console.error(
+            `[formStore:getForms] Error reading form file "${fileEntry.name}":`,
+            readError,
+        );
+        // Return null for files that couldn't be read/parsed
+        // These will be filtered out later
+        return null;
+      }
+    });
+
+    // Wait for all read attempts to complete
+    const allContents = await Promise.all(formContentPromises);
+
+    // 4. Filter out null results (files that failed to read)
+    const validFormContents = allContents.filter(
+        (content) => content !== null,
+    );
+
+    console.log(
+        `[formStore:getForms] Successfully read ${validFormContents.length} out of ${formFileEntries.length} potential form files.`,
+    );
+    return validFormContents; // Return array of JSON strings
+  } catch (dirError) {
+    // Handle errors reading the directory itself (e.g., permissions)
+    if (dirError.message?.includes("path not allowed")) {
+      console.error(
+          `[formStore:getForms] Permission denied reading directory ${FORM_SUBDIR}. Check capabilities.`,
+          dirError,
+      );
+    } else {
+      console.error(
+          `[formStore:getForms] Error reading forms directory ${FORM_SUBDIR}:`,
+          dirError,
+      );
+    }
+    return []; // Return empty array on directory read error
+  }
+}
+
+/**
  * Saves (creates or updates) a form definition file.
  * @param {string} formId - The identifier (filename without extension) for the form.
  * @param {string} formJsonContent - The JSON content of the form as a string.

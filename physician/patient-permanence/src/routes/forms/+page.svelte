@@ -12,6 +12,7 @@
     } from "@tauri-apps/plugin-notification";
     // listen is no longer needed here
     // import { listen } from "@tauri-apps/api/event";
+    import {getForms, listForms} from "$lib/formStore.js";
 
     let forms = $state([]);
     let isLoading = $state(true);
@@ -89,6 +90,7 @@
         error = null;
         console.log("Form list effect running...");
         listForms()
+        getForms()
             .then((data) => {
                 forms = data;
                 console.log("Forms loaded:", forms.length);
@@ -194,6 +196,18 @@
                             >Sumarizovat</a
                         >
                     </div>
+    <h1 class="mb-6 text-center text-2xl font-bold text-gray-800">Aktuální dotazníky</h1>
+    <div class="w-full max-w-md mx-auto rounded-lg border border-gray-200 bg-white p-6 shadow-md">
+        <ul>
+            {#each forms as form (form.templateId)}
+                <li>
+                    <a href="/patient-form/{form.templateId}" class="block mb-2">
+                        <span class="font-medium">{form.name}</span>
+                        <br>
+                        <span class="text-sm text-gray-600">{form.description || "Bez popisu"}</span>
+                    </a>
+                    <a href="/form-edit/{form.templateId}" class="text-blue-600 hover:underline"> Edit </a>
+                    <a href="/form-summary/{form.templateId}" class="text-blue-600 hover:underline"> Shrnutí </a>
                 </li>
             {/each}
         </ul>

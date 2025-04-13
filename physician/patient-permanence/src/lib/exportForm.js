@@ -401,3 +401,30 @@ function getQuestionOverallStatus(formJSON, questionIdx) {
 
   return { isAnyCritical, isAnyProblematic };
 }
+
+/**
+ * Determines the overall status of a form based on all its questions.
+ * Checks if *any* question was critical or problematic.
+ *
+ * @param {object} formJSON - The form object with answers included.
+ * @returns {{isCritical: boolean, isProblematic: boolean}} - Overall status flags.
+ */
+export function getFormOverallStatus(formJSON) {
+  const questions = formJSON.formTemplate.questions;
+  let isCritical = false;
+  let isProblematic = false;
+
+  for (let i = 0; i < questions.length; i++) {
+    const { isAnyCritical, isAnyProblematic } = getQuestionOverallStatus(
+      formJSON,
+      i,
+    );
+    if (isAnyCritical) {
+      isCritical = true;
+    }
+    if (isAnyProblematic) {
+      isProblematic = true;
+    }
+  }
+  return { isCritical, isProblematic };
+}

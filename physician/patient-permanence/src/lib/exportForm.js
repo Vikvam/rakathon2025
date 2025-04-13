@@ -454,3 +454,155 @@ export function getFormOverallStatus(formJSON) {
   }
   return { isCritical, isProblematic };
 }
+
+/**
+ * Creates an ASCII table of raw answer values with questions as rows and dates as columns.
+ * Questions are grouped by their formName (category).
+ * 
+ * @param {object} formJSON - The complete form JSON object including answers arrays per question.
+ * @returns {string} - An ASCII table string representation of the data.
+ */
+export function exportFormTable(formJSON) {
+  if (!formJSON?.formTemplate?.questions) {
+    return "Chybí data formuláře.";
+  }
+
+  const questions = formJSON.formTemplate.questions;
+  
+  // Group questions by category
+  /** @type {Object.<string, Array<any>>} */
+  const categorizedQuestions = {};
+  
+  // First, collect all dates across all questions
+  const allDatesSet = new Set();
+  
+  // Collect questions with answers and gather all unique dates
+  for (const question of questions) {
+    const answers = question.answers || [];
+    if (answers.length === 0) continue;
+    
+    // Get category name from formName or fallback to "Ostatní" (Other)
+    const category = question.formName || "Ostatní";
+    
+    // Initialize category array if it doesn't exist
+    if (!categorizedQuestions[category]) {
+      categorizedQuestions[category] = [];
+    }
+    
+    // Add question to its category
+    categorizedQuestions[category].push(question);
+    
+    // Collect all dates from answers
+    for (const answer of answers) {
+      if (answer.timestamp) {
+        allDatesSet.add(formatDate(answer.timestamp));
+      }
+    }
+  }
+  
+  // Convert the Set to a sorted array of dates
+  const allDates = Array.from(allDatesSet).sort();
+  
+  if (allDates.length === 0) {
+    return "Žádná data k zobrazení v tabulce.";
+  }
+  
+  // Create the table
+  let result = [];
+  
+  // Calculate column widths
+  const keyColWidth = Math.max(20, ...questions.map(q => (q.key.replace(/_/g, " ")).length));
+  const dateColWidth = 10; // YYYY-MM-DD format
+  
+  // Helper function to pad strings to specific width
+  const pad = (str, width) => {
+    return String(str).padEnd(width);
+  };
+  
+  // Helper function to create a horizontal separator line
+  const createSeparator = () => {
+    return "+" + "-".repeat(keyColWidth + 2) + 
+           allDates.map(() => "+" + "-".repeat(dateColWidth + 2)).join("") + 
+           "+";
+  };
+  
+  // For each category, create a section in the table
+  Object.keys(categorizedQuestions).forEach(category => {
+    const categoryQuestions = categorizedQuestions[category];
+    
+    // Add category header
+    result.push(createSeparator());
+    result.push(`| ${category.padEnd(keyColWidth)} ${allDates.map(d => `| ${pad(d, dateColWidth)} `).join("")}|`);
+    result.push(createSeparator());
+    
+    // Add each question's data
+    categoryQuestions.forEach(question => {
+      const keyText = question.key.replace(/_/g, " ");
+      const answers = question.answers || [];
+      
+      // Create a map of date -> value for this question
+      const dateValueMap = {};
+      answers.forEach(answer => {
+        if (answer.timestamp) {
+          const dateStr = formatDate(answer.timestamp);
+          dateValueMap[dateStr] = formatValue(answer.value, question.dataType);
+        }
+      });
+      
+      // Create the row
+      let row = `| ${pad(keyText, keyColWidth)} `;
+      
+      // Add each date's value or empty cell
+      allDates.forEach(date => {
+        const value = dateValueMap[date] !== undefined ? dateValueMap[date] : "";
+        row += `| ${pad(value, dateColWidth)} `;
+      });
+      
+      row += "|";
+      result.push(row);
+    });
+    
+    // Add a separator at the end of each category
+    result.push(createSeparator());
+  });
+  
+  return result.join("\n");
+}
+
+/**
+ * Format a timestamp to YYYY-MM-DD format
+ * 
+ * @param {string} timestamp - ISO timestamp
+ * @returns {string} - Formatted date
+ */
+function formatDate(timestamp) {
+  try {
+    const date = new Date(timestamp);
+    return date.toISOString().split('T')[0]; // YYYY-MM-DD
+  } catch (error) {
+    return "Invalid";
+  }
+}
+
+/**
+ * Format a value based on its dataType
+ * 
+ * @param {any} value - The answer value
+ * @param {string} dataType - The question's data type
+ * @returns {string} - Formatted value
+ */
+function formatValue(value, dataType) {
+  if (value === null || value === undefined) {
+    return "";
+  }
+  
+  if (dataType === "numerical") {
+    return typeof value === "number" ? value.toString() : "";
+  } else if (dataType === "single_choice") {
+    return value.toString().substring(0, 10); // Truncate if too long
+  } else {
+    // For any other type, convert to string and truncate if needed
+    const strValue = JSON.stringify(value);
+    return strValue.length > 10 ? strValue.substring(0, 7) + "..." : strValue;
+  }
+}

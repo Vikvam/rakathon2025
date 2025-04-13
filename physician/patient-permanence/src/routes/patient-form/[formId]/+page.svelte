@@ -5,7 +5,7 @@
     import { getConfig } from "$lib/configStore.js";
 
     import { goto } from "$app/navigation";
-    import { getFormOverallStatus, exportFormSummary } from "$lib/exportForm";
+    import { getFormOverallStatus, exportFormSummary, exportFormTable } from "$lib/exportForm";
 
     // --- Component Props (Svelte 5) ---
     let { data } = $props(); // Passed from +page.ts load function
@@ -212,7 +212,8 @@
                 const { isProblematic, isCritical } = getFormOverallStatus(form);
                 isAnyAnswerProblematic = isProblematic;
                 isAnyAnswerCritical = isCritical;
-                emailContent = "subject=" + encodeURIComponent(`Formulář ${formData.name} byl odeslán`) + "&body=" + encodeURIComponent(exportFormSummary(form));
+                emailContent = "subject=" + encodeURIComponent(`Formulář ${formData.name} byl odeslán`);
+                emailContent += "&body=" + encodeURIComponent(exportFormSummary(form));// + "\n\n" + exportFormTable(form));
             }
 
             submissionMessage = "Formulář byl úspěšně uložen";

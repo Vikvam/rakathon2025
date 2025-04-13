@@ -12,31 +12,31 @@
                 <a
                         href="/user"
                         class="text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 rounded"
-                >User</a
+                >Moje Karta</a
                 >
             </li>
-            <li>
+            <!--<li>
                 <a
                     href="/"
                     class="text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 rounded"
                     >Home</a
                 >
-            </li>
+            </li>-->
             <li>
                 <a
                     href="/monitoring-config"
                     class="text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 rounded"
-                    >Monitoring Config</a
+                    >Nový dotazík pro pacienta</a
                 >
             </li>
             <li>
                 <a
                     href="/forms"
                     class="text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 rounded"
-                    >Forms</a
+                    >Pacient</a
                 >
             </li>
-            <li>
+            <!--<li>
                 <a
                     href="/form-definition"
                     class="text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 rounded"
@@ -63,7 +63,7 @@
                     class="text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 rounded"
                     >Patient Form</a
                 >
-            </li>
+            </li>-->
         </ul>
     </nav>
 </header>

@@ -2,6 +2,13 @@
   "key": "nazev_pro_lekare_1",
   "text": "Text otázky pro pacienta č. 1 (např. 'Jak se dnes cítíte?')",
   "dataType": "numerical",
+  "formName": "Example Form Name",
+  "defaultValue": 0,
+  "inputAttributes": {
+    "min": 0,
+    "max": 100,
+    "step": 1
+  },
   "problematicValues": {
     "deviation": {
       "increasePercent": 5,

@@ -5,7 +5,7 @@
     import { getConfig } from "$lib/configStore.js";
 
     import { goto } from "$app/navigation";
-    import { getFormOverallStatus, exportFormSummary } from "$lib/exportForm";
+    import { getFormOverallStatus, exportFormSummary, exportFormTable } from "$lib/exportForm";
 
     // --- Component Props (Svelte 5) ---
     let { data } = $props(); // Passed from +page.ts load function
@@ -212,8 +212,8 @@
                 const { isProblematic, isCritical } = getFormOverallStatus(form);
                 isAnyAnswerProblematic = isProblematic;
                 isAnyAnswerCritical = isCritical;
-
-                emailContent = `${exportFormSummary(form)}`;
+                emailContent = "subject=" + encodeURIComponent(`Formulář ${formData.name} byl odeslán`);
+                emailContent += "&body=" + encodeURIComponent(exportFormSummary(form));// + "\n\n" + exportFormTable(form));
             }
 
             submissionMessage = "Formulář byl úspěšně uložen";
@@ -669,7 +669,7 @@
                 {#if isAnyAnswerCritical}
                     <p>Tyto informace vašeho lékaře zajímají. Prosím, odešlete mu e-mail.</p>
                     <a
-                        href="mailto:{config.email}?subject=Výpis z aplikace, {config.user}&body=${emailContent}"
+                        href="mailto:info@example.com?{emailContent}"
                         target="_blank"
                         class="mt-6 inline-block rounded-md bg-yellow-600 py-2 px-5 font-semibold text-white hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2"
                     >

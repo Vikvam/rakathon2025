@@ -2,6 +2,7 @@
   "key": "nazev_pro_lekare_2",
   "text": "Text otázky pro pacienta č. 2 (např. 'Máte dnes bolesti?')",
   "dataType": "single_choice",
+  "formName": "Example Form Name",
   "options": [
     { "value": "opt_1", "text": "Spíše ano" },
     { "value": "opt_2", "text": "Nevím" },

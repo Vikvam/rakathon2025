@@ -248,6 +248,8 @@
                 defaultValue: q.defaultValue,
                 problematicValues: q.problematicValues,
                 criticalValues: q.criticalValues,
+                // Store the form name from source template
+                formName: template.name || categoryId,
             })),
         };
     }
@@ -338,6 +340,8 @@
                             key: question.key,
                             text: question.name,
                             dataType: question.dataType,
+                            // Include form_name for category grouping in export
+                            formName: question.formName || category.name,
                             // Conditionally include optional fields
                             ...(question.options && {
                                 options: question.options,

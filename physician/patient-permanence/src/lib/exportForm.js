@@ -336,7 +336,7 @@ export function exportFormSummary(formJSON) {
       summaryPart = `${keyText}: ${valueStr}`;
     }
 
-    categorySummaries[category].push(summaryPart);
+    categorySummaries[category].push(`- ${summaryPart}`);
   }
 
   // Join summaries by category
